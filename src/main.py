@@ -10,5 +10,7 @@ def main():
     main_menu = MainMenu(screen, screen_width, screen_height)
     main_menu.run()
 
+
+
 if __name__ == "__main__":
     main()
