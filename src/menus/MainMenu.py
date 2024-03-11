@@ -1,9 +1,8 @@
-# Inside MainMenu.py
 import pygame
 import sys
 from .BaseMenu import BaseMenu
 from .InstructionsMenu import InstructionsMenu
-
+from .PlayersMenu import PlayersMenu
 
 
 class MainMenu(BaseMenu):
@@ -15,13 +14,14 @@ class MainMenu(BaseMenu):
             self.screen.blit(self.background_image, (0, 0))
             mx, my = pygame.mouse.get_pos()
 
-            button_1 = pygame.Rect(70, 500, 250, 50)  # posx, posy, largura, altura
+            button_1 = pygame.Rect(70, 500, 250, 50)  #posx, posy, largura, altura
             button_2 = pygame.Rect(70, 560, 250, 50)
             button_3 = pygame.Rect(70, 620, 250, 50)
 
             if button_1.collidepoint((mx, my)):
                 if self.click:
-                    self.start_game()
+                    players_menu = PlayersMenu(self.screen, self.screen_width, self.screen_height)
+                    players_menu.run()
             if button_2.collidepoint((mx, my)):
                 if self.click:
                     instructions_menu = InstructionsMenu(self.screen, self.screen_width, self.screen_height)
@@ -41,6 +41,3 @@ class MainMenu(BaseMenu):
 
             self.handle_events()
             self.update_display()
-
-    def start_game(self):
-        print("Start game placeholder")
