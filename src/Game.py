@@ -2,7 +2,7 @@ import pygame
 import sys
 
 
-class Board:
+class Game:
     def __init__(self, width, height):
         self.red_reserved = 0
         self.blue_reserved = 0
@@ -336,5 +336,5 @@ class Board:
 
 if __name__ == "__main__":
     pygame.init()
-    game = Board(600, 600)
+    game = Game(600, 600)
     game.run()
