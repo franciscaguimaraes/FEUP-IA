@@ -1,6 +1,6 @@
 import pygame
-import sys
 from .BaseMenu import BaseMenu
+from src.Board import Board
 
 
 class PlayersMenu(BaseMenu):
@@ -13,7 +13,7 @@ class PlayersMenu(BaseMenu):
             self.screen.blit(self.background_image, (0, 0))
             mx, my = pygame.mouse.get_pos()
 
-            button_1 = pygame.Rect(490, 265, 350, 50)  #posx, posy, largura, altura
+            button_1 = pygame.Rect(490, 265, 350, 50)  # posx, posy, largura, altura
             button_2 = pygame.Rect(490, 385, 350, 50)
             button_3 = pygame.Rect(490, 505, 350, 50)
             button_4 = pygame.Rect(70, 760, 350, 50)
@@ -36,7 +36,6 @@ class PlayersMenu(BaseMenu):
             pygame.draw.rect(self.screen, self.backColor, button_3)
             pygame.draw.rect(self.screen, self.orange, button_4)
 
-
             self.draw_text('Player vs Player', self.orange, 500, 280)
             self.draw_text('Player vs Computer', self.orange, 500, 400)
             self.draw_text('Computer vs Computer', self.orange, 500, 520)
@@ -46,4 +45,6 @@ class PlayersMenu(BaseMenu):
             self.update_display()
 
     def start_game(self):
+        game = Board(600, 600)
+        game.run()
         print("Start game placeholder")
