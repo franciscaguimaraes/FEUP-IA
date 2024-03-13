@@ -24,8 +24,6 @@ class Board:
         self.blue_pieces = 18
         self.red_pieces = 18
         self.selected_piece = None
-        self.message_timer = None
-        self.message_text = None
         self.menu_width = 300
         self.total_width = width + self.menu_width
         self.screen = pygame.display.set_mode((self.total_width, height))  # Adjust screen size for side menu
@@ -50,7 +48,7 @@ class Board:
             ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
             ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
             ['N', 'X', 'X', 'X', 'X', 'X', 'X', 'N'],
-            ['N', 'X', 'X', 'X', 'X', 'X', 'N', 'N']
+            ['N', 'N', 'X', 'X', 'X', 'X', 'N', 'N']
         ]
 
     def draw_board(self):
@@ -227,10 +225,10 @@ class Board:
         # Update capture and reserve counts based on the player
         if player_moving == 'B':
             self.blue_reserved += reserve_count
-            self.blue_pieces -= capture_count
+            self.red_pieces -= capture_count
         else:
             self.red_reserved += reserve_count
-            self.red_pieces -= capture_count
+            self.blue_pieces -= capture_count
 
         print(f"Board after move: {self.board[to_row][to_col]}")
         print(f"Blue reserved: {self.blue_reserved}, Red reserved: {self.red_reserved}")
@@ -270,6 +268,9 @@ class Board:
         self.initialize_board()
         valid_moves = []  # Store valid moves as a local variable
         selected_piece = None  # Use to track the currently selected piece
+        winner = None  # Use to track the winner of the game
+        display_winner_time = None  # Initialize display_winner_time
+        game_ended = False
 
         running = True
         while running:
@@ -277,7 +278,7 @@ class Board:
                 if event.type == pygame.QUIT:
                     running = False
 
-                if event.type == pygame.MOUSEBUTTONDOWN:
+                if not game_ended and event.type == pygame.MOUSEBUTTONDOWN:
                     mouse_pos = pygame.mouse.get_pos()
                     row, col = self.get_cell_from_mouse_pos(mouse_pos)
 
@@ -293,7 +294,8 @@ class Board:
                                 winner = self.check_winner()
                                 if winner:
                                     print(f"The winner is {winner}!")  # Or display on the screen
-                                    running = False  # End the game loop
+                                    display_winner_time = pygame.time.get_ticks()
+                                    continue  # Skip the rest of the loop to display the winner
 
                                 self.switch_turns()
                             else:
@@ -306,20 +308,30 @@ class Board:
                                     self.board[row][col][len(self.board[row][col]) - 1]:
                                 selected_piece = (row, col)
                                 valid_moves = self.get_valid_moves(row, col)
-                            # Highlight moves is called after determining valid moves
 
-            self.screen.fill(self.BLACK)  # Consider clearing the screen to redraw
-            self.draw_board()
-            self.draw_pieces()
-            if selected_piece:
-                self.highlight_moves(valid_moves)
-            self.draw_side_menu()
+            if winner and display_winner_time is not None:
+                self.screen.fill(self.BLACK)
+                self.display_winner(winner)
+                game_ended = True
+                if pygame.time.get_ticks() - display_winner_time > 5000:
+                    running = False  # End the game after 5 seconds
+            else:
+                self.screen.fill(self.BLACK)
+                self.draw_board()
+                self.draw_pieces()
+                if selected_piece:
+                    self.highlight_moves(valid_moves)
+                self.draw_side_menu()
 
             pygame.display.flip()
             self.clock.tick(60)
 
         pygame.quit()
         sys.exit()
+
+    def display_winner(self, winner):
+        winner_text = f"Winner is {'Blue' if winner == 'B' else 'Red'}!"
+        self.draw_text(winner_text, self.font, self.WHITE, self.width // 2, self.height // 2)
 
 
 if __name__ == "__main__":
