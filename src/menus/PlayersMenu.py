@@ -1,6 +1,6 @@
 import pygame
 from .BaseMenu import BaseMenu
-from src.Game import Game
+from src import GameController
 
 
 class PlayersMenu(BaseMenu):
@@ -45,6 +45,6 @@ class PlayersMenu(BaseMenu):
             self.update_display()
 
     def start_game(self):
-        game = Game(600, 600)
+        game = GameController.GameController(600, 600, 1, 1)
         game.run()
         print("Start game placeholder")
