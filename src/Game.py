@@ -31,27 +31,27 @@ class Game:
         self.screen = pygame.display.set_mode((self.total_width, height))  # Adjust screen size for side menu
 
     def initialize_board(self):
-        self.board = [
-            ['N', 'N', 'X', 'X', 'X', 'X', 'N', 'N'],
-            ['N', 'B', 'B', 'R', 'R', 'B', 'B', 'N'],
-            ['X', 'R', 'R', 'B', 'B', 'R', 'R', 'X'],
-            ['X', 'B', 'B', 'R', 'R', 'B', 'B', 'X'],
-            ['X', 'R', 'R', 'B', 'B', 'R', 'R', 'X'],
-            ['X', 'B', 'B', 'R', 'R', 'B', 'B', 'X'],
-            ['N', 'R', 'R', 'B', 'B', 'R', 'R', 'N'],
-            ['N', 'N', 'X', 'X', 'X', 'X', 'N', 'N']
-        ]
-
         # self.board = [
         #     ['N', 'N', 'X', 'X', 'X', 'X', 'N', 'N'],
-        #     ['N', 'X', 'B', 'R', 'R', 'X', 'X', 'N'],
-        #     ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
-        #     ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
-        #     ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
-        #     ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
-        #     ['N', 'X', 'X', 'X', 'X', 'X', 'X', 'N'],
+        #     ['N', 'B', 'B', 'R', 'R', 'B', 'B', 'N'],
+        #     ['X', 'R', 'R', 'B', 'B', 'R', 'R', 'X'],
+        #     ['X', 'B', 'B', 'R', 'R', 'B', 'B', 'X'],
+        #     ['X', 'R', 'R', 'B', 'B', 'R', 'R', 'X'],
+        #     ['X', 'B', 'B', 'R', 'R', 'B', 'B', 'X'],
+        #     ['N', 'R', 'R', 'B', 'B', 'R', 'R', 'N'],
         #     ['N', 'N', 'X', 'X', 'X', 'X', 'N', 'N']
         # ]
+
+        self.board = [
+            ['N', 'N', 'X', 'X', 'X', 'X', 'N', 'N'],
+            ['N', 'X', 'B', 'R', 'R', 'X', 'X', 'N'],
+            ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
+            ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
+            ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
+            ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
+            ['N', 'X', 'X', 'X', 'X', 'X', 'X', 'N'],
+            ['N', 'N', 'X', 'X', 'X', 'X', 'N', 'N']
+        ]
 
     # This function draws the board taking into consideration the board size. If piece in board is 'N', it will draw a
     # rectangle with the color of the background, otherwise, it will draw a rectangle with the color of the background
@@ -128,10 +128,27 @@ class Game:
 
     def draw_reserved_button(self):
         if (self.turn == 'B' and self.blue_reserved > 0) or (self.turn == 'R' and self.red_reserved > 0):
-            self.button_rect = pygame.Rect(self.width + 50, 400, 200, 50)  # Adjust size and position as needed
-            pygame.draw.rect(self.screen, self.YELLOW, self.button_rect)  # Draw the button
-            self.draw_text('Play Reserved', self.font, self.WHITE, self.button_rect.centerx,
-                           self.button_rect.centery)
+            # Calculate the button's position and size
+            button_x = self.width + 50
+            button_y = 400
+            button_width = 200
+            button_height = 50
+
+            # Rectangle for the border - slightly larger than the button itself
+            border_rect = pygame.Rect(button_x - 2, button_y - 2, button_width + 4, button_height + 4)
+
+            # Draw the border rectangle
+            pygame.draw.rect(self.screen, self.BLACK, border_rect)
+
+            # Now draw the button rectangle on top of the border
+            self.button_rect = pygame.Rect(button_x, button_y, button_width, button_height)
+            pygame.draw.rect(self.screen, self.YELLOW, self.button_rect)
+
+            # Adjust the text drawing position to center it in the button
+            # You might need to adjust the text positioning based on your font size and button dimensions
+            text_x = button_x + (button_width // 2)
+            text_y = button_y + (button_height // 2) - 10  # Adjust based on your font's height
+            self.draw_text('Play Reserved', self.font, self.WHITE, button_x + 20, button_y + 15)
 
     # This function gets the cell from the mouse position. It takes into consideration the mouse position and the
     # cell size. It then calculates the row and column of the cell based on the mouse position and the cell size. If
@@ -311,8 +328,11 @@ class Game:
         capture_count = 0
         reserve_count = 0
 
+        # if i click on something outside the board
+        if row is None or col is None:
+            return False
         # Only allow placing a piece if the cell is empty ('X') or already contains pieces (a list).
-        if self.board[row][col] == 'X':
+        elif self.board[row][col] == 'X':
             # If the cell is empty, initialize a new list with the player's piece.
             self.board[row][col] = player
         elif self.board[row][col] != 'X' and self.board[row][col] != 'N':
@@ -382,27 +402,30 @@ class Game:
                     # If placing_reserved is True, try to place a reserved piece
                     if placing_reserved:
                         print("here")
-                        success = self.place_reserved_piece(row, col, self.turn)
-                        if success:
-                            placing_reserved = False  # Reset the flag after placing
-                            winner = self.check_winner()
-                            if winner:
-                                game_ended = True
+
+                        if row is not None and col is not None:
+                            success = self.place_reserved_piece(row, col, self.turn)
+                            if success:
+                                placing_reserved = False  # Reset the flag after placing
+                                winner = self.check_winner()
+                                print(winner)
+                                if winner is not None:
+                                    game_ended = True
+                                    break
+                                else:
+                                    self.switch_turns()
                             else:
-                                self.switch_turns()
+                                print("Invalid move")
+                        placing_reserved = False  # Reset the flag if the move was invalid
                         continue  # Skip the rest of this iteration
 
                     # Check if the reserved button was clicked
                     if hasattr(self, 'button_rect') and self.button_rect.collidepoint(mouse_pos):
                         if (self.turn == 'B' and self.blue_reserved > 0) or (
                                 self.turn == 'R' and self.red_reserved > 0):
-                            print("hi")
                             placing_reserved = True
-                            # highligth all of the board
-                            self.highlight_moves(
-                                [(i, j) for i in range(self.board_size) for j in range(self.board_size)])
-                            print("second hi")
-                            continue  # Skip the rest of this iteration
+                            self.highlight_moves([(i, j) for i in range(self.board_size) for j in range(self.board_size)])
+                            continue
 
                     # Check if a piece is selected and if the click is within bounds
                     if row is not None and col is not None and not placing_reserved:
@@ -442,6 +465,7 @@ class Game:
                 self.draw_side_menu()
             else:
                 if winner:
+                    self.screen.fill(self.BLACK)
                     self.display_winner(winner)
 
             pygame.display.flip()
