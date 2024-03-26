@@ -4,8 +4,9 @@ import sys
 
 class Game:
     def __init__(self, width, height):
-        self.red_reserved = 0
-        self.blue_reserved = 0
+        self.button_rect = None
+        self.red_reserved = 1
+        self.blue_reserved = 1
         self.board = None
         self.board_size = 8
         self.width = width
@@ -19,6 +20,7 @@ class Game:
         self.RED = (255, 0, 0)
         self.BLUE = (0, 0, 255)
         self.GREEN = (0, 255, 0)
+        self.YELLOW = (255, 190, 2)
         self.font = pygame.font.Font(None, 36)
         self.turn = 'B'  # 'B' for blue, 'R' for red
         self.blue_pieces = 18
@@ -29,28 +31,30 @@ class Game:
         self.screen = pygame.display.set_mode((self.total_width, height))  # Adjust screen size for side menu
 
     def initialize_board(self):
-        # self.board = [
-        #     ['N', 'N', 'X', 'X', 'X', 'X', 'N', 'N'],
-        #     ['N', 'B', 'B', 'R', 'R', 'B', 'B', 'N'],
-        #     ['X', 'R', 'R', 'B', 'B', 'R', 'R', 'X'],
-        #     ['X', 'B', 'B', 'R', 'R', 'B', 'B', 'X'],
-        #     ['X', 'R', 'R', 'B', 'B', 'R', 'R', 'X'],
-        #     ['X', 'B', 'B', 'R', 'R', 'B', 'B', 'X'],
-        #     ['N', 'R', 'R', 'B', 'B', 'R', 'R', 'N'],
-        #     ['N', 'N', 'X', 'X', 'X', 'X', 'N', 'N']
-        # ]
-
         self.board = [
             ['N', 'N', 'X', 'X', 'X', 'X', 'N', 'N'],
-            ['N', 'X', 'B', 'R', 'R', 'X', 'X', 'N'],
-            ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
-            ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
-            ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
-            ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
-            ['N', 'X', 'X', 'X', 'X', 'X', 'X', 'N'],
+            ['N', 'B', 'B', 'R', 'R', 'B', 'B', 'N'],
+            ['X', 'R', 'R', 'B', 'B', 'R', 'R', 'X'],
+            ['X', 'B', 'B', 'R', 'R', 'B', 'B', 'X'],
+            ['X', 'R', 'R', 'B', 'B', 'R', 'R', 'X'],
+            ['X', 'B', 'B', 'R', 'R', 'B', 'B', 'X'],
+            ['N', 'R', 'R', 'B', 'B', 'R', 'R', 'N'],
             ['N', 'N', 'X', 'X', 'X', 'X', 'N', 'N']
         ]
 
+        # self.board = [
+        #     ['N', 'N', 'X', 'X', 'X', 'X', 'N', 'N'],
+        #     ['N', 'X', 'B', 'R', 'R', 'X', 'X', 'N'],
+        #     ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
+        #     ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
+        #     ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
+        #     ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
+        #     ['N', 'X', 'X', 'X', 'X', 'X', 'X', 'N'],
+        #     ['N', 'N', 'X', 'X', 'X', 'X', 'N', 'N']
+        # ]
+
+    # This function draws the board taking into consideration the board size. If piece in board is 'N', it will draw a
+    # rectangle with the color of the background, otherwise, it will draw a rectangle with the color of the background
     def draw_board(self):
         self.screen.fill(self.GRAY)
         cell_size = self.width // self.board_size
@@ -73,6 +77,10 @@ class Game:
                 if not self.board[j][i] == 'N':
                     pygame.draw.rect(self.screen, line_color, (x, y, cell_size, cell_size), 1)
 
+    # This function draws the pieces on the board. It takes into consideration the board size to calculate the size
+    # of each piece and the position of each piece. It also draws a border around each piece to make it easier to see
+    # the pieces on the board. If piece is 'B', it will draw a blue piece, if piece is 'R', it will draw a red piece,
+    # otherwise it will draw nothing
     def draw_pieces(self):
         cell_size = self.width // len(self.board[0])
         piece_height = cell_size // 6  # Set the height of each piece
@@ -93,6 +101,9 @@ class Game:
                             pygame.draw.rect(self.screen, self.BLACK,
                                              (x, y - k * piece_height, piece_width, piece_height), 1)  # Draw border
 
+    # This function draws the side menu. It takes into consideration the width of the screen and the height of the
+    # screen. It also draws the text for the game title, the turn, the pieces in play, and the pieces reserved for each
+    # player.
     def draw_side_menu(self):
         pygame.draw.rect(self.screen, self.WHITE, (self.width, 0, self.menu_width, self.height))
         self.draw_text('Focus Game', self.font, self.BLACK, self.width + 70, 20)
@@ -105,13 +116,27 @@ class Game:
         self.draw_text('Pieces Reserved:', self.font, self.BLACK, self.width + 60, 300)
         self.draw_text(str(self.blue_reserved), self.font, self.BLUE, self.width + 100, 330)
         self.draw_text(str(self.red_reserved), self.font, self.RED, self.width + 180, 330)
+        self.draw_reserved_button()
 
+    # This function draws the text on the screen. It takes into consideration the text, the font, the color, and the
+    # position of the text. It then renders the text and draws it on the screen
     def draw_text(self, text, font, color, x, y):
         text = font.render(text, 1, color)
         textrect = text.get_rect()
         textrect.topleft = (x, y)
         self.screen.blit(text, textrect)
 
+    def draw_reserved_button(self):
+        if (self.turn == 'B' and self.blue_reserved > 0) or (self.turn == 'R' and self.red_reserved > 0):
+            self.button_rect = pygame.Rect(self.width + 50, 400, 200, 50)  # Adjust size and position as needed
+            pygame.draw.rect(self.screen, self.YELLOW, self.button_rect)  # Draw the button
+            self.draw_text('Play Reserved', self.font, self.WHITE, self.button_rect.centerx,
+                           self.button_rect.centery)
+
+    # This function gets the cell from the mouse position. It takes into consideration the mouse position and the
+    # cell size. It then calculates the row and column of the cell based on the mouse position and the cell size. If
+    # the mouse position is within the width and height of the screen, it returns the row and column of the cell,
+    # otherwise it returns None, None
     def get_cell_from_mouse_pos(self, mouse_pos):
         cell_size = self.width // self.board_size
         x, y = mouse_pos
@@ -123,6 +148,9 @@ class Game:
         else:
             return None, None
 
+    # This function gets the valid moves for a piece. It takes into consideration the row and column of the piece. It
+    # then gets the stack from the board at the row and column. It then calculates the valid moves for the piece based
+    # on the number of pieces in the stack and the directions to check. It then returns the valid moves for the piece
     def get_valid_moves(self, row, col):
         stack = self.board[row][col]
         valid_moves = []
@@ -151,6 +179,11 @@ class Game:
 
         return valid_moves
 
+    # This function highlights the valid moves. It takes into consideration the valid moves. It then calculates the cell
+    # size based on the width and the board size. It then draws a rectangle on the screen with the highlight color for
+    # each valid move
+
+    # TODO: Fix the highlight_moves function when placing piece, yellow border too thick
     def highlight_moves(self, valid_moves):
         cell_size = self.width // self.board_size
         for row, col in valid_moves:
@@ -163,9 +196,16 @@ class Game:
             pygame.draw.rect(self.screen, highlight_color, (x, y, cell_size, cell_size),
                              5)  # 5 is the thickness of the border
 
+    # This function switches the turns. It takes into consideration the current turn. If the current turn is 'R', it
+    # switches the turn to 'B', otherwise it switches the turn to 'R'
     def switch_turns(self):
         self.turn = 'B' if self.turn == 'R' else 'R'
 
+    # This function moves the piece. It takes into consideration the 'from' position and the 'to' position. It then
+    # calculates the distance based on the 'from' position and the 'to' position. It then gets the stack from the board
+    # at the 'from' position. It then calculates the number of pieces to move based on the distance. It then gets the
+    # moving stack from the original position. It then calculates the number of pieces to move based on the distance.
+    # It then determines
     def move_piece(self, from_pos, to_pos):
         print(f"Attempting to move from {from_pos} to {to_pos}")
 
@@ -214,6 +254,7 @@ class Game:
 
                 # Trim the destination stack and add the moving pieces
                 destination_stack = destination_stack[remove_count:]
+
             self.board[to_row][to_col] = destination_stack + moving_pieces
 
         # Remove the moved pieces from the original stack
@@ -264,13 +305,69 @@ class Game:
         else:
             return None  # Game continues
 
+    def place_reserved_piece(self, row, col, player):
+        print(f"Placing reserved piece for {player} at {row}, {col}")
+
+        capture_count = 0
+        reserve_count = 0
+
+        # Only allow placing a piece if the cell is empty ('X') or already contains pieces (a list).
+        if self.board[row][col] == 'X':
+            # If the cell is empty, initialize a new list with the player's piece.
+            self.board[row][col] = player
+        elif self.board[row][col] != 'X' and self.board[row][col] != 'N':
+            # Calculate the final stack considering the max stack size of 5
+            destination_stack = self.board[row][col]
+            total_length = len(destination_stack) + 1
+
+            # Identify the pieces to be removed and adjust capture/reserve counts
+            if total_length > 5:
+                # Determine the number of pieces that will be removed
+                remove_count = total_length - 5
+
+                # Remove pieces from the destination stack as needed
+                for i in range(remove_count):
+
+                    # Remove from the bottom of the destination stack
+                    removed_piece = destination_stack[i]
+                    if removed_piece != player:
+                        capture_count += 1  # The piece is different from the moving player's piece
+                    else:
+                        reserve_count += 1  # The piece belongs to the moving player
+
+                    # Trim the destination stack and add the moving pieces
+                    destination_stack = destination_stack[remove_count:]
+
+            self.board[row][col] = destination_stack + player
+            # Remove the moved pieces from the original stack
+
+            # Update capture and reserve counts based on the player
+            print(f"Board after move: {self.board[row][col]}")
+            print(f"Blue reserved: {self.blue_reserved}, Red reserved: {self.red_reserved}")
+            print(f"Blue pieces: {self.blue_pieces}, Red pieces: {self.red_pieces}")
+        else:
+            print("unexpected")
+            return False
+
+        if player == 'B' and self.blue_reserved > 0:
+            self.blue_reserved += reserve_count - 1
+            self.red_pieces -= capture_count
+        elif player == 'R' and self.red_reserved > 0:
+            self.red_reserved += reserve_count - 1
+            self.blue_pieces -= capture_count
+        else:
+            # In case there's an attempt to place a piece without having any reserved, return False.
+            return False
+
+        return True  # Indicate success.
+
     def run(self):
         self.initialize_board()
         valid_moves = []  # Store valid moves as a local variable
         selected_piece = None  # Use to track the currently selected piece
         winner = None  # Use to track the winner of the game
-        display_winner_time = None  # Initialize display_winner_time
         game_ended = False
+        placing_reserved = False  # Flag to indicate placing a reserved piece
 
         running = True
         while running:
@@ -282,8 +379,33 @@ class Game:
                     mouse_pos = pygame.mouse.get_pos()
                     row, col = self.get_cell_from_mouse_pos(mouse_pos)
 
+                    # If placing_reserved is True, try to place a reserved piece
+                    if placing_reserved:
+                        print("here")
+                        success = self.place_reserved_piece(row, col, self.turn)
+                        if success:
+                            placing_reserved = False  # Reset the flag after placing
+                            winner = self.check_winner()
+                            if winner:
+                                game_ended = True
+                            else:
+                                self.switch_turns()
+                        continue  # Skip the rest of this iteration
+
+                    # Check if the reserved button was clicked
+                    if hasattr(self, 'button_rect') and self.button_rect.collidepoint(mouse_pos):
+                        if (self.turn == 'B' and self.blue_reserved > 0) or (
+                                self.turn == 'R' and self.red_reserved > 0):
+                            print("hi")
+                            placing_reserved = True
+                            # highligth all of the board
+                            self.highlight_moves(
+                                [(i, j) for i in range(self.board_size) for j in range(self.board_size)])
+                            print("second hi")
+                            continue  # Skip the rest of this iteration
+
                     # Check if a piece is selected and if the click is within bounds
-                    if row is not None and col is not None:
+                    if row is not None and col is not None and not placing_reserved:
                         if selected_piece:
                             # Attempt to move the selected piece
                             if (row, col) in valid_moves:
@@ -293,35 +415,34 @@ class Game:
 
                                 winner = self.check_winner()
                                 if winner:
-                                    print(f"The winner is {winner}!")  # Or display on the screen
-                                    display_winner_time = pygame.time.get_ticks()
-                                    continue  # Skip the rest of the loop to display the winner
-
-                                self.switch_turns()
+                                    game_ended = True
+                                else:
+                                    self.switch_turns()
                             else:
-                                # Deselect if clicked outside of valid moves
+                                # Deselect if clicked outside valid moves
                                 selected_piece = None
                                 valid_moves = []
                         else:
                             # Select a piece if it's the current player's turn
                             if self.board[row][col] != 'N' and self.board[row][col] != 'X' and self.turn == \
-                                    self.board[row][col][len(self.board[row][col]) - 1]:
+                                    self.board[row][col][-1]:
                                 selected_piece = (row, col)
                                 valid_moves = self.get_valid_moves(row, col)
 
-            if winner and display_winner_time is not None:
-                self.screen.fill(self.BLACK)
-                self.display_winner(winner)
-                game_ended = True
-                if pygame.time.get_ticks() - display_winner_time > 5000:
-                    running = False  # End the game after 5 seconds
-            else:
-                self.screen.fill(self.BLACK)
+            if not game_ended:
+                if not placing_reserved:
+                    self.screen.fill(self.BLACK)  # Clear the screen
                 self.draw_board()
                 self.draw_pieces()
-                if selected_piece:
+                if placing_reserved:
+                    self.highlight_moves([(i, j) for i in range(self.board_size) for j in range(self.board_size) if
+                                          self.board[i][j] != 'N'])
+                elif selected_piece:
                     self.highlight_moves(valid_moves)
                 self.draw_side_menu()
+            else:
+                if winner:
+                    self.display_winner(winner)
 
             pygame.display.flip()
             self.clock.tick(60)
