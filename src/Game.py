@@ -1,9 +1,17 @@
+import random
+
 import pygame
 import sys
 
+# will need to call game with mode 1 for player vs player, 2 for player vs computer, 3 for computer vs computer
+# game = Game(600, 600, mode)
 
+# will need to call game with difficulty 1 for easy, 2 for medium, 3 for hard (only for computers)
+# game = Game(600, 600, 2, 3)
 class Game:
-    def __init__(self, width, height):
+    def __init__(self, width, height, mode=None, difficulty=None):
+        self.mode = mode
+        self.difficulty = difficulty
         self.button_rect = None
         self.red_reserved = 1
         self.blue_reserved = 1
@@ -196,6 +204,17 @@ class Game:
 
         return valid_moves
 
+    def get_all_valid_moves(self, player):
+        valid_moves = []
+        for row in range(self.board_size):
+            for col in range(self.board_size):
+                if self.board[row][col][-1] == player:  # Check if the top piece belongs to the player
+                    piece_valid_moves = self.get_valid_moves(row, col)
+                    for move in piece_valid_moves:
+                        valid_moves.append(
+                            (row, col, move))  # Append the move as a tuple (from_row, from_col, to_row, to_col)
+        return valid_moves
+
     # This function highlights the valid moves. It takes into consideration the valid moves. It then calculates the cell
     # size based on the width and the board size. It then draws a rectangle on the screen with the highlight color for
     # each valid move
@@ -381,6 +400,36 @@ class Game:
 
         return True  # Indicate success.
 
+    import random
+
+    def computer_move(self, difficulty):
+
+        # easy - random move
+        if difficulty == 1:
+            valid_moves = self.get_all_valid_moves('R')  # Get ALL valid moves for the computer player (Red)
+            if not valid_moves and self.red_reserved == 0: # If no valid moves and no reserved pieces
+                print("No valid moves available")
+                return
+
+            if valid_moves: # If there are valid moves, select a random move
+                from_row, from_col, (to_row, to_col) = random.choice(valid_moves)
+                print(f"Computer moves from {from_row}, {from_col} to {to_row}, {to_col}")
+                self.move_piece((from_row, from_col), (to_row, to_col))
+
+            elif self.red_reserved > 0: # If no valid moves but there are reserved pieces
+                # select random move in board
+                to_row, to_col = random.choice([(i, j) for i in range(self.board_size) for j in range(self.board_size) if self.board[i][j] != 'N'])
+                self.place_reserved_piece(to_row, to_col, 'R')
+
+        elif difficulty == 2:
+            # Placeholder for Monte Carlo Tree Search
+            pass
+        elif difficulty == 3:
+            # Placeholder for Minimax algorithm
+            pass
+
+        self.switch_turns()  # Switch turns at the end of the computer move
+
     def run(self):
         self.initialize_board()
         valid_moves = []  # Store valid moves as a local variable
@@ -391,18 +440,22 @@ class Game:
 
         running = True
         while running:
+
+            if (self.mode == 2 and self.turn == 'R') or (self.mode == 3):
+                self.computer_move(1)
+                # Continue to the next iteration to avoid processing player input
+                continue
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
 
-                if not game_ended and event.type == pygame.MOUSEBUTTONDOWN:
+                elif event.type == pygame.MOUSEBUTTONDOWN and not game_ended:
                     mouse_pos = pygame.mouse.get_pos()
                     row, col = self.get_cell_from_mouse_pos(mouse_pos)
 
                     # If placing_reserved is True, try to place a reserved piece
                     if placing_reserved:
-                        print("here")
-
                         if row is not None and col is not None:
                             success = self.place_reserved_piece(row, col, self.turn)
                             if success:
@@ -481,5 +534,5 @@ class Game:
 
 if __name__ == "__main__":
     pygame.init()
-    game = Game(600, 600)
+    game = Game(600, 600, 2, 3)
     game.run()
