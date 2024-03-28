@@ -346,7 +346,21 @@ class GameLogic:
                         print("No valid moves available")
 
         elif difficulty == 3:  # Hard - Minimax
-            # Placeholder for Minimax algorithm
+
+            print("Computer is moving - HARD")
+
+            minimax_algorithm = Minimax(depth=3, player=self.turn)  # Adjust depth
+            best_move = minimax_algorithm.find_best_move(self)
+
+            if best_move:
+                from_row, from_col, to_row, to_col = best_move
+                if (from_row, from_col) == (None, None):  # Reserved piece move
+                    self.highlight_and_move_computer(None, (to_row, to_col), is_reserved=True, game_view=game_view)
+                else:  # Regular move
+                    self.highlight_and_move_computer((from_row, from_col), (to_row, to_col), is_reserved=False,
+                                                     game_view=game_view)
+            else:
+                print("No valid moves available")
             pass
 
     """ Checks if the game is over (i.e, a winner exists).
