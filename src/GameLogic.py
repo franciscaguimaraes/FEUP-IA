@@ -4,6 +4,8 @@ import pygame
 
 from src.AI.MCTS import MCTS
 from src.AI.Minimax import Minimax
+from src.AI.MinimaxWithAlphaBeta import MinimaxWithAlphaBeta
+
 
 class GameLogic:
 
@@ -349,7 +351,10 @@ class GameLogic:
 
             print("Computer is moving - HARD")
 
-            minimax_algorithm = Minimax(depth=3, player=self.turn)  # Adjust depth
+            # minimax_algorithm = Minimax(depth=3, player=self.turn)  # Adjust depth
+            # best_move = minimax_algorithm.find_best_move(self)
+
+            minimax_algorithm = MinimaxWithAlphaBeta(depth=3, player=self.turn)
             best_move = minimax_algorithm.find_best_move(self)
 
             if best_move:
