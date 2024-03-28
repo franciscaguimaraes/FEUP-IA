@@ -1,5 +1,7 @@
 import pygame
 from .BaseMenu import BaseMenu
+from .LevelsMenu import LevelsMenu
+from .PieceColorMenu import PieceColorMenu
 from src import GameController
 
 
@@ -18,15 +20,18 @@ class PlayersMenu(BaseMenu):
             button_3 = pygame.Rect(490, 505, 350, 50)
             button_4 = pygame.Rect(70, 760, 350, 50)
 
-            if button_1.collidepoint((mx, my)):
+            if button_1.collidepoint((mx, my)): # player vs player
                 if self.click:
-                    self.start_game()
-            if button_2.collidepoint((mx, my)):
+                    colors_menu = PieceColorMenu(self.screen, self.screen_width, self.screen_height)
+                    colors_menu.run()
+            if button_2.collidepoint((mx, my)): # player vs computer
                 if self.click:
-                    self.start_game()
-            if button_3.collidepoint((mx, my)):
+                    levels_menu = LevelsMenu(self.screen, self.screen_width, self.screen_height)
+                    levels_menu.run()
+            if button_3.collidepoint((mx, my)): # computer vs computer
                 if self.click:
-                    self.start_game()
+                    levels_menu = LevelsMenu(self.screen, self.screen_width, self.screen_height)
+                    levels_menu.run()
             if button_4.collidepoint((mx, my)):
                 if self.click:
                     running = False
@@ -45,6 +50,5 @@ class PlayersMenu(BaseMenu):
             self.update_display()
 
     def start_game(self):
-        game = GameController.GameController(600, 600, 1, 1)
+        game = GameController.GameController(600, 600, 2, 1)
         game.run()
-        print("Start game placeholder")
