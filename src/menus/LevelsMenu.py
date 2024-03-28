@@ -4,8 +4,10 @@ from src import GameController
 
 
 class LevelsMenu(BaseMenu):
-    def __init__(self, screen, screen_width, screen_height):
+    def __init__(self, screen, screen_width, screen_height, mode, turn):
         super().__init__(screen, screen_width, screen_height, './imgs/gameLevels.png')
+        self.mode = mode
+        self.turn = turn
 
     def run(self):
         running = True
@@ -20,14 +22,14 @@ class LevelsMenu(BaseMenu):
 
             if button_1.collidepoint((mx, my)):  # level 1
                 if self.click:
-                    self.start_game(1, 1)
+                    self.start_game(self.mode, 1, self.turn)
             if button_2.collidepoint((mx, my)):  # level 2
                 if self.click:
                     if self.click:
-                        self.start_game(1, 2)
+                        self.start_game(self.mode, 2, self.turn)
             if button_3.collidepoint((mx, my)):  # level 3
                 if self.click:
-                    self.start_game(1, 3)
+                    self.start_game(self.mode, 3, self.turn)
             if button_4.collidepoint((mx, my)):
                 if self.click:
                     running = False
@@ -37,6 +39,6 @@ class LevelsMenu(BaseMenu):
             self.handle_events()
             self.update_display()
 
-    def start_game(self, mode, difficulty):
-        game = GameController.GameController(600, 600, 2, difficulty)
+    def start_game(self, mode, difficulty, turn):
+        game = GameController.GameController(600, 600, 8, mode, difficulty, None, turn)
         game.run()

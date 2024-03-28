@@ -1,3 +1,5 @@
+import random
+
 import pygame
 
 
@@ -80,6 +82,7 @@ class GameView:
         self.draw_text(str(self.game_logic.blue_reserved), self.font, self.BLUE, self.width + 100, 330)
         self.draw_text(str(self.game_logic.red_reserved), self.font, self.RED, self.width + 180, 330)
         self.draw_reserved_button()
+        self.display_hint()
 
     def draw_text(self, text, font, color, x, y):
         text = font.render(text, 1, color)
@@ -89,7 +92,7 @@ class GameView:
 
     def draw_reserved_button(self):
         if (self.game_logic.turn == 'B' and self.game_logic.blue_reserved > 0) or (self.game_logic.turn == 'R'
-                                                                                   and self.game_logic.red_reserved > 0):
+                                                                            and self.game_logic.red_reserved > 0):
             button_x = self.width + 50
             button_y = 400
             button_width = 200
@@ -103,15 +106,66 @@ class GameView:
             self.draw_text('Play Reserved', self.font, self.WHITE, button_x + 20, button_y + 15)
 
     def display_winner(self, winner):
-        winner_text = f"Winner is {'Blue' if winner == 'B' else 'Red'}!"
-        self.draw_text(winner_text, self.font, self.WHITE, self.width // 2, self.height // 2)
+        # Select the correct image path based on the winner
+        if winner == 'B':
+            winner_image_path = 'imgs/winner_blue.png'
+        else:
+            winner_image_path = 'imgs/winner_red.png'
+        try:
+            winner_image = pygame.image.load(winner_image_path)
+            # Scale the image to fit the screen
+            # Here, we use self.total_width because it accounts for the side menu width as well
+            winner_image = pygame.transform.scale(winner_image, (self.total_width, self.height))
 
-    def highlight_moves(self, valid_moves):
+            # Since the image now exactly matches the screen dimensions, start drawing from the top-left corner
+            self.screen.blit(winner_image, (0, 0))
+        except pygame.error as e:
+            print(f"Error loading the winner image: {e}")
+
+        pygame.display.flip()  # Update the full display Surface to the screen
+
+    def highlight_moves(self, valid_moves, reserved=False):
+
+        if reserved:
+            width = 2
+        else:
+            width = 5
+
         cell_size = self.width // self.game_logic.board_size
+
         for row, col in valid_moves:
             x = col * cell_size
             y = row * cell_size
 
             highlight_color = (255, 255, 0)
 
-            pygame.draw.rect(self.screen, highlight_color, (x, y, cell_size, cell_size), 5)
+            pygame.draw.rect(self.screen, highlight_color, (x, y, cell_size, cell_size), width)
+
+    def draw_everything(self, valid_moves=None, selected_piece=None, placing_reserved=False):
+        self.screen.fill(self.BLACK)
+        self.draw_board()
+        self.draw_pieces()
+        self.draw_side_menu()
+
+        if selected_piece:
+            self.highlight_moves(valid_moves, reserved=False)
+
+        if placing_reserved:
+            self.highlight_moves([(i, j) for i in range(self.game_logic.board_size)
+                                  for j in range(self.game_logic.board_size)
+                                  if self.game_logic.board[i][j] != 'N'], reserved=True)
+
+        pygame.display.flip()  # Update the screen with everything drawn
+
+    def display_hint(self, display_hint=False):
+        if display_hint:
+            print("Displaying hint")
+
+            hints = [
+                "As the game nears its end, consider gathering reserve pieces. These are valuable and can lead to a win.",
+                "Watch for stacks five pieces high under your opponent's control, with one of your pieces at the bottom. Adding one of your pieces on top lets you control the stack and earn a reserve piece.",
+                "At the start of the game, aim to create many stacks that are two pieces high. Position these stacks two spaces apart in rows that meet, so you can easily combine them into a larger stack under your control.",
+                "Avoid moving next to two or three of your opponent's single pieces. These are a threat because they're only one move away from taking over a stack."
+            ]
+
+            hint = random.choice(hints)

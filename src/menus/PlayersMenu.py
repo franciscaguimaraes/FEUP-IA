@@ -1,8 +1,8 @@
 import pygame
 from .BaseMenu import BaseMenu
-from .LevelsMenu import LevelsMenu
+from .ComputerLevelsMenu import ComputerLevelsMenu
 from .PieceColorMenu import PieceColorMenu
-from src import GameController
+from .PlayerComputerPieceChoice import PlayerComputerPieceChoice
 
 
 class PlayersMenu(BaseMenu):
@@ -20,18 +20,18 @@ class PlayersMenu(BaseMenu):
             button_3 = pygame.Rect(490, 505, 350, 50)
             button_4 = pygame.Rect(70, 760, 350, 50)
 
-            if button_1.collidepoint((mx, my)): # player vs player
+            if button_1.collidepoint((mx, my)):  # player vs player
                 if self.click:
                     colors_menu = PieceColorMenu(self.screen, self.screen_width, self.screen_height)
                     colors_menu.run()
-            if button_2.collidepoint((mx, my)): # player vs computer
+            if button_2.collidepoint((mx, my)):  # player vs computer
                 if self.click:
-                    levels_menu = LevelsMenu(self.screen, self.screen_width, self.screen_height)
-                    levels_menu.run()
-            if button_3.collidepoint((mx, my)): # computer vs computer
+                    player_computer_menu = PlayerComputerPieceChoice(self.screen, self.screen_width, self.screen_height)
+                    player_computer_menu.run()
+            if button_3.collidepoint((mx, my)):  # computer vs computer
                 if self.click:
-                    levels_menu = LevelsMenu(self.screen, self.screen_width, self.screen_height)
-                    levels_menu.run()
+                    computer_computer_menu = ComputerLevelsMenu(self.screen, self.screen_width, self.screen_height, 3)
+                    computer_computer_menu.run()
             if button_4.collidepoint((mx, my)):
                 if self.click:
                     running = False
@@ -48,7 +48,3 @@ class PlayersMenu(BaseMenu):
 
             self.handle_events()
             self.update_display()
-
-    def start_game(self):
-        game = GameController.GameController(600, 600, 2, 1)
-        game.run()

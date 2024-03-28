@@ -1,8 +1,9 @@
 import pygame
 from .BaseMenu import BaseMenu
 from src import GameController
+from .LevelsMenu import LevelsMenu
 
-class PieceColorMenu(BaseMenu):
+class PlayerComputerPieceChoice(BaseMenu):
     def __init__(self, screen, screen_width, screen_height):
         super().__init__(screen, screen_width, screen_height, './imgs/selectColorMenu.png')
 
@@ -18,11 +19,12 @@ class PieceColorMenu(BaseMenu):
 
             if button_1.collidepoint((mx, my)):  # Start first
                 if self.click:
-                    self.start_game(1, None, 'B')
+                    levels_menu = LevelsMenu(self.screen, self.screen_width, self.screen_height, 2, 'B')
+                    levels_menu.run()
             if button_2.collidepoint((mx, my)):  # Start second
                 if self.click:
-                    if self.click:
-                        self.start_game(1, None, 'R')
+                    levels_menu = LevelsMenu(self.screen, self.screen_width, self.screen_height, 2, 'R')
+                    levels_menu.run()
             if button_4.collidepoint((mx, my)):
                 if self.click:
                     running = False
@@ -32,7 +34,3 @@ class PieceColorMenu(BaseMenu):
 
             self.handle_events()
             self.update_display()
-
-    def start_game(self, mode, difficulty, turn):
-        game = GameController.GameController(600, 600, 8, mode, difficulty, None, turn)
-        game.run()

@@ -2,42 +2,70 @@ import random
 
 import pygame
 
+from src.AI.MCTS import MCTS
+
 
 class GameLogic:
     def __init__(self, board_size):
         self.board_size = board_size
         self.board = None
         self.initialize_board()
-        self.turn = 'B'  # Blue player goes first later this decision will be passed as an argument
+        self.turn = 'B'  # Blue player as default
+        self.player = 'human' # Human player as default
         self.blue_reserved = 0
         self.red_reserved = 0
         self.blue_pieces = None
         self.red_pieces = None
 
     def initialize_board(self):
-        # self.board = [
-        #     ['N', 'N', 'X', 'X', 'X', 'X', 'N', 'N'],
-        #     ['N', 'B', 'B', 'R', 'R', 'B', 'B', 'N'],
-        #     ['X', 'R', 'R', 'B', 'B', 'R', 'R', 'X'],
-        #     ['X', 'B', 'B', 'R', 'R', 'B', 'B', 'X'],
-        #     ['X', 'R', 'R', 'B', 'B', 'R', 'R', 'X'],
-        #     ['X', 'B', 'B', 'R', 'R', 'B', 'B', 'X'],
-        #     ['N', 'R', 'R', 'B', 'B', 'R', 'R', 'N'],
-        #     ['N', 'N', 'X', 'X', 'X', 'X', 'N', 'N']
-        # ]
+        if self.board_size == 8:
 
-        self.board = [
-            ['N', 'N', 'X', 'X', 'X', 'X', 'N', 'N'],
-            ['N', 'X', 'B', 'R', 'R', 'X', 'X', 'N'],
-            ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
-            ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
-            ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
-            ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
-            ['N', 'X', 'X', 'X', 'X', 'X', 'X', 'N'],
-            ['N', 'N', 'X', 'X', 'X', 'X', 'N', 'N']
-        ]
+            # 8x8 board
+            # self.board = [
+            #     ['N', 'N', 'X', 'X', 'X', 'X', 'N', 'N'],
+            #     ['N', 'B', 'B', 'R', 'R', 'B', 'B', 'N'],
+            #     ['X', 'R', 'R', 'B', 'B', 'R', 'R', 'X'],
+            #     ['X', 'B', 'B', 'R', 'R', 'B', 'B', 'X'],
+            #     ['X', 'R', 'R', 'B', 'B', 'R', 'R', 'X'],
+            #     ['X', 'B', 'B', 'R', 'R', 'B', 'B', 'X'],
+            #     ['N', 'R', 'R', 'B', 'B', 'R', 'R', 'N'],
+            #     ['N', 'N', 'X', 'X', 'X', 'X', 'N', 'N']
+            # ]
+
+            self.board = [
+                ['N', 'N', 'X', 'X', 'X', 'X', 'N', 'N'],
+                ['N', 'X', 'R', 'X', 'B', 'X', 'X', 'N'],
+                ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
+                ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
+                ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
+                ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
+                ['N', 'X', 'X', 'X', 'X', 'X', 'X', 'N'],
+                ['N', 'N', 'X', 'X', 'X', 'X', 'N', 'N']
+            ]
+        elif self.board_size == 6:
+
+            # 6X6 board
+            self.board = [
+                ['N', 'N', 'X', 'X', 'N', 'N'],
+                ['N', 'R', 'R', 'B', 'B', 'N'],
+                ['X', 'B', 'B', 'R', 'R', 'X'],
+                ['X', 'R', 'R', 'B', 'B', 'X'],
+                ['N', 'B', 'B', 'R', 'R', 'N'],
+                ['N', 'N', 'X', 'X', 'N', 'N']
+            ]
 
         self.count_pieces()
+
+    def copy(self):
+        # Create a copy of the current game state
+        new_board = GameLogic(self.board_size)
+        new_board.board = [row.copy() for row in self.board]
+        new_board.turn = self.turn
+        new_board.blue_reserved = self.blue_reserved
+        new_board.red_reserved = self.red_reserved
+        new_board.blue_pieces = self.blue_pieces
+        new_board.red_pieces = self.red_pieces
+        return new_board
 
     def count_pieces(self):
         self.blue_pieces = 0
@@ -53,26 +81,19 @@ class GameLogic:
         stack = self.board[row][col]
         valid_moves = []
 
-        # Number of pieces in the stack determines the number of spaces you can move
-        num_pieces = len(stack)
+        num_pieces = len(stack)  # Number of pieces in the stack
+        directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # Up, Down, Left, Right
 
-        # Define the directions to check: up, down, left, right
-        directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
-
-        # Check each direction
-        for dr, dc in directions:
+        for dr, dc in directions:  # Check each direction
             for i in range(1, num_pieces + 1):
                 new_row, new_col = row + dr * i, col + dc * i
-                # Check if new position is within bounds
-                if 0 <= new_row < self.board_size and 0 <= new_col < self.board_size:
-                    # If the cell is not part of the board ('N'), it's not a valid move
+                if 0 <= new_row < self.board_size and 0 <= new_col < self.board_size:  # Check if new position is
+                    # within bounds
                     if self.board[new_row][new_col] == 'N':
                         break
-                    # Add the move if the space is either empty ('X'), contains opponent's piece on top,
-                    # or contains player's own pieces
-                    valid_moves.append((new_row, new_col))
+                    valid_moves.append((new_row, new_col))  # Add the move if the space is either empty ('X'),
+                    # contains opponent's piece on top, or contains player's own pieces
                 else:
-                    # Out of bounds
                     break
 
         return valid_moves
@@ -83,208 +104,196 @@ class GameLogic:
             for col in range(self.board_size):
                 if self.board[row][col][-1] == player:  # Check if the top piece belongs to the player
                     piece_valid_moves = self.get_valid_moves_for_position(row, col)
-                    for move in piece_valid_moves:
-                        valid_moves.append(
-                            (row, col, move))  # Append the move as a tuple (from_row, from_col, to_row, to_col)
+                    for to_row, to_col in piece_valid_moves:  # Add the valid moves for the piece
+                        valid_moves.append((row, col, to_row, to_col))  # Add the move to the list of valid moves
         return valid_moves
 
-    def move_stack(self, from_pos, to_pos):
-        print(f"Attempting to move from {from_pos} to {to_pos}")
-
-        from_row, from_col = from_pos
-        to_row, to_col = to_pos
-
-        # Calculate the number of pieces to move based on the distance
-        distance = abs(to_row - from_row) + abs(to_col - from_col)
-
-        # Get the stack from the original position
-        moving_stack = self.board[from_row][from_col]
-        print(f"Board before move: {self.board[to_row][to_col]} moving stack: {moving_stack}")
-
-        # The number of pieces to move is the same as the distance
-        pieces_to_move = min(distance, len(moving_stack))
-        moving_pieces = moving_stack[-pieces_to_move:]
-
-        # Determine the player making the move
-        player_moving = moving_pieces[-1]  # Assuming the moving piece is the last in the selected stack
-
-        # Initialize capture and reserve counts for this move
-        capture_count = 0
-        reserve_count = 0
-
-        # If the target cell is empty ('X'), just move the selected pieces
-        if self.board[to_row][to_col] == 'X':
-            self.board[to_row][to_col] = moving_pieces
-        else:
-            # Calculate the final stack considering the max stack size of 5
-            destination_stack = self.board[to_row][to_col]
-            total_length = len(destination_stack) + pieces_to_move
-
-            # Identify the pieces to be removed and adjust capture/reserve counts
-            if total_length > 5:
-                # Determine the number of pieces that will be removed
-                remove_count = total_length - 5
-
-                # Remove pieces from the destination stack as needed
-                for i in range(remove_count):
-                    # Remove from the bottom of the destination stack
-                    removed_piece = destination_stack[i]
-                    if removed_piece != player_moving:
-                        capture_count += 1  # The piece is different from the moving player's piece
-                    else:
-                        reserve_count += 1  # The piece belongs to the moving player
-
-                # Trim the destination stack and add the moving pieces
-                destination_stack = destination_stack[remove_count:]
-
-            self.board[to_row][to_col] = destination_stack + moving_pieces
-
-        # Remove the moved pieces from the original stack
-        self.board[from_row][from_col] = self.board[from_row][from_col][:-pieces_to_move]
-        if not self.board[from_row][from_col]:
-            # If no pieces remain, mark the original position as empty
-            self.board[from_row][from_col] = 'X'
-
-        # Update capture and reserve counts based on the player
-        if player_moving == 'B':
+    def update_piece_counts(self, player, capture_count, reserve_count):
+        if player == 'B':
             self.blue_reserved += reserve_count
             self.red_pieces -= capture_count
         else:
             self.red_reserved += reserve_count
             self.blue_pieces -= capture_count
 
-        print(f"Board after move: {self.board[to_row][to_col]}")
-        print(f"Blue reserved: {self.blue_reserved}, Red reserved: {self.red_reserved}")
-        print(f"Blue pieces: {self.blue_pieces}, Red pieces: {self.red_pieces}")
+    def calculate_distance(self, from_pos, to_pos):
+        from_row, from_col = from_pos
+        to_row, to_col = to_pos
+        return abs(to_row - from_row) + abs(to_col - from_col)
 
-    def move_reserved_piece(self, row, col, player):
-        print(f"Placing reserved piece for {player} at {row}, {col}")
+    def move_logic(self, from_pos, to_pos, player, moving_pieces, distance=None):
+        to_row, to_col = to_pos
 
-        capture_count = 0
-        reserve_count = 0
+        if distance:
+            moving_pieces = moving_pieces[-distance:] if len(moving_pieces) > distance else moving_pieces
 
-        # if I click on something outside the board
-        if row is None or col is None:
-            return False
-        # Only allow placing a piece if the cell is empty ('X') or already contains pieces (a list).
-        elif self.board[row][col] == 'X':
-            # If the cell is empty, initialize a new list with the player's piece.
-            self.board[row][col] = player
-        elif self.board[row][col] != 'X' and self.board[row][col] != 'N':
-            # Calculate the final stack considering the max stack size of 5
-            destination_stack = self.board[row][col]
-            total_length = len(destination_stack) + 1
+        destination_stack = self.board[to_row][to_col] if self.board[to_row][to_col] != 'X' else ""
+        final_stack = destination_stack + moving_pieces
 
-            # Identify the pieces to be removed and adjust capture/reserve counts
-            if total_length > 5:
-                # Determine the number of pieces that will be removed
-                remove_count = total_length - 5
-
-                # Remove pieces from the destination stack as needed
-                for i in range(remove_count):
-
-                    # Remove from the bottom of the destination stack
-                    removed_piece = destination_stack[i]
-                    if removed_piece != player:
-                        capture_count += 1  # The piece is different from the moving player's piece
-                    else:
-                        reserve_count += 1  # The piece belongs to the moving player
-
-                    # Trim the destination stack and add the moving pieces
-                    destination_stack = destination_stack[remove_count:]
-
-            self.board[row][col] = destination_stack + player
-            # Remove the moved pieces from the original stack
-
-            # Update capture and reserve counts based on the player
-            print(f"Board after move: {self.board[row][col]}")
-            print(f"Blue reserved: {self.blue_reserved}, Red reserved: {self.red_reserved}")
-            print(f"Blue pieces: {self.blue_pieces}, Red pieces: {self.red_pieces}")
+        if len(final_stack) > 5:
+            excess_pieces = final_stack[:len(final_stack) - 5]
+            final_stack = final_stack[-5:]
         else:
-            print("unexpected")
-            return False
+            excess_pieces = ""
 
-        if player == 'B' and self.blue_reserved > 0:
-            self.blue_reserved += reserve_count - 1
-            self.red_pieces -= capture_count
-        elif player == 'R' and self.red_reserved > 0:
-            self.red_reserved += reserve_count - 1
-            self.blue_pieces -= capture_count
-        else:
-            # In case there's an attempt to place a piece without having any reserved, return False.
-            return False
+        capture_count = sum(1 for piece in excess_pieces if piece != player)
+        reserve_count = len(excess_pieces) - capture_count
 
-        return True  # Indicate success.
+        if from_pos:
+            from_row, from_col = from_pos
+            self.board[from_row][from_col] = self.board[from_row][from_col][:-len(moving_pieces)] or 'X'
+
+        self.board[to_row][to_col] = ''.join(final_stack) if final_stack else 'X'
+        return capture_count, reserve_count
+
+    def move_stack(self, from_pos, to_pos):
+        from_row, from_col = from_pos
+        moving_stack = self.board[from_row][from_col]
+        player_moving = moving_stack[-1]
+
+        distance = self.calculate_distance(from_pos, to_pos)  # Calculate the distance between the two positions
+
+        capture_count, reserve_count = self.move_logic(from_pos, to_pos, player_moving, moving_stack, distance)
+        self.update_piece_counts(player_moving, capture_count, reserve_count)
+
+    def move_reserved_piece(self, to_pos, player):
+        capture_count, reserve_count = self.move_logic(None, to_pos, player, player)
+        self.update_piece_counts(player, capture_count, reserve_count - 1)  # Subtract one since we're using one reserve
+        return True
 
     def check_winner(self):
-        # Assume initially that both players can move
-        can_move = {'B': False, 'R': False}
 
-        # Check the board for potential moves for each player
+        top_pieces = {'B': False, 'R': False}  # Track presence of top pieces for both players
+        can_move = {'B': False, 'R': False}  # Track if the player can move any pieces
+
         for row in range(self.board_size):
             for col in range(self.board_size):
                 stack = self.board[row][col]
-                if stack == 'X' or stack == 'N':  # Skip empty spaces and non-playable areas
+
+                if stack in ['N', 'X'] or not stack:
                     continue
 
-                top_piece = stack[-1]  # The top-most piece of the stack
-                # Check if the current player has a potential move
+                top_piece = stack[-1]  # top-most piece of the stack
+                top_pieces[top_piece] = True  # If the top piece is 'B', set top_pieces['B'] to True and vice versa
+
+                # Check if there are valid moves for the piece at this position
                 if self.get_valid_moves_for_position(row, col):
                     can_move[top_piece] = True
 
-        # Determine the loser based on potential moves and reserved pieces
-        loser = None
-        for player in ['B', 'R']:
-            if not can_move[player]:
-                if (player == 'B' and self.blue_reserved == 0) or (player == 'R' and self.red_reserved == 0):
-                    loser = player
-                    break
+        has_reserved = {'B': self.blue_reserved > 0, 'R': self.red_reserved > 0}
 
-        # If we have identified a loser, return the winner
-        if loser:
-            return 'R' if loser == 'B' else 'B'
+        if top_pieces['B'] and not top_pieces['R']:  # If only blue pieces are on top and no red pieces
+            return 'B' if not has_reserved['R'] and not can_move['R'] else None
+        elif top_pieces['R'] and not top_pieces['B']:  # If only red pieces are on top and no blue pieces
+            return 'R' if not has_reserved['B'] and not can_move['B'] else None
         else:
-            return None  # Game continues
+            if not can_move['B'] and not has_reserved['B'] and top_pieces['R'] and not top_pieces['B']:
+                return 'R'
+            elif not can_move['R'] and not has_reserved['R'] and top_pieces['B'] and not top_pieces['R']:
+                return 'B'
+            return None
 
     def switch_turns(self):
-        self.turn = 'B' if self.turn == 'R' else 'R'
+        self.turn = 'B' if self.turn == 'R' else 'R'  # Switch turns between Blue and Red
+        self.player = 'human' if self.player == 'computer' else 'computer'  # Switch player between human and computer
 
-    def computer_move(self, difficulty, game_view):
-        # easy - random move
-        if difficulty == 1:
-            valid_moves = self.get_valid_moves_for_player('R')  # Get ALL valid moves for the computer player (Red)
+    def highlight_and_move_computer(self, from_pos, to_pos, is_reserved, game_view):
+        if is_reserved:
+            game_view.highlight_moves(
+                [(i, j) for i in range(self.board_size) for j in range(self.board_size) if self.board[i][j] != 'N'],
+                reserved=True)
+        else:
+            valid_positions = self.get_valid_moves_for_position(from_pos[0], from_pos[1])
+            game_view.highlight_moves(valid_positions, reserved=False)
 
-            if not valid_moves and self.red_reserved == 0:  # If no valid moves and no reserved pieces
-                print("No valid moves available")
-                return
+        pygame.display.flip()
+        pygame.time.delay(1000)
 
-            if valid_moves:  # If there are valid moves, select a random move
-                from_row, from_col, (to_row, to_col) = random.choice(valid_moves)
+        if is_reserved:
+            self.move_reserved_piece(to_pos, self.turn)  # Hardcoded for now (computer is always red)
+        else:
+            self.move_stack(from_pos, to_pos)
 
-                valid_positions = self.get_valid_moves_for_position(from_row, from_col)
-                game_view.highlight_moves(valid_positions)
+    def computer_move(self, mode, game_view, difficulty1, difficulty2):
 
-                pygame.display.flip()
-                pygame.time.delay(1000)  # Delay for 1000 milliseconds (1 second)
+        # if mode is 2 - only one computer player - only one difficulty
+        # if mode is 3 - two computer players, difficulty might differ
 
-                print(f"Computer moves from {from_row}, {from_col} to {to_row}, {to_col}")
-                self.move_stack((from_row, from_col), (to_row, to_col))
-            elif self.red_reserved > 0:  # If no valid moves but there are reserved pieces
-                # select random move in board
+        if mode == 2:
+            difficulty = difficulty1
+        elif mode == 3:
+            if self.turn == 'B':  # First Player (Blue) has difficulty1
+                difficulty = difficulty1
+            else:
+                difficulty = difficulty2  # Second Player (Red) has difficulty2
+        else:
+            difficulty = None
 
-                game_view.highlight_moves(
+        if difficulty == 1:  # Easy - random
+
+            print("Computer is moving - EASY")
+
+            valid_moves = self.get_valid_moves_for_player(self.turn)
+
+            if valid_moves:
+                from_row, from_col, to_row, to_col = random.choice(valid_moves)
+                self.highlight_and_move_computer((from_row, from_col), (to_row, to_col), is_reserved=False,
+                                                 game_view=game_view)
+            elif self.red_reserved > 0:
+                to_row, to_col = random.choice(
                     [(i, j) for i in range(self.board_size) for j in range(self.board_size) if
                      self.board[i][j] != 'N'])
+                self.highlight_and_move_computer(None, (to_row, to_col), is_reserved=True, game_view=game_view)
+            else:
+                print("No valid moves available")
 
-                to_row, to_col = random.choice(
-                    [(i, j) for i in range(self.board_size) for j in range(self.board_size) if self.board[i][j] != 'N'])
-                self.move_reserved_piece(to_row, to_col, 'R')
+        elif difficulty == 2:  # Medium - MCTS
 
-        elif difficulty == 2:
-            # Placeholder for Monte Carlo Tree Search
-            pass
+            print("Computer is moving - MEDIUM")
+
+            mcts_tree = MCTS(self, self.turn, 10)
+            selected_move = mcts_tree.search()
+
+            if selected_move:
+                valid_positions = self.get_valid_moves_for_position(selected_move[0], selected_move[1])
+                game_view.highlight_moves(valid_positions, reserved=False)
+                pygame.display.flip()
+
+                pygame.time.delay(1000)  # wait 1 second
+
+                self.move_stack((selected_move[0], selected_move[1]), (selected_move[2], selected_move[3]))
+            else:  # If no valid moves are available
+                if self.red_reserved > 0:  # BUT there are reserved pieces
+
+                    # Choose higher stack controlled by opponent
+                    max_stack = 0
+                    max_stack_pos = None
+                    for i in range(self.board_size):
+                        for j in range(self.board_size):
+                            if self.board[i][j][-1] != self.turn and len(self.board[i][j]) > max_stack:
+                                max_stack = len(self.board[i][j])
+                                max_stack_pos = (i, j)
+
+                    if max_stack_pos:
+                        to_row, to_col = max_stack_pos
+
+                        self.highlight_and_move_computer(None, (to_row, to_col), is_reserved=True, game_view=game_view)
+                        pygame.display.flip()
+                    else:
+                        print("No valid moves available")
+
         elif difficulty == 3:
             # Placeholder for Minimax algorithm
             pass
 
-        self.switch_turns()  # Switch turns at the end of the computer move
+    def check_gameover(self):
+        return self.check_winner() is not None  # Game is over if there's a winner
+
+    def get_result(self, player):
+        winner = self.check_winner()  # Check the winner
+        if winner == player:  # If the winner is the player
+            return 1  # Win
+        elif winner is None:
+            return 0  # Game not done
+        else:
+            return -1  # Loss
