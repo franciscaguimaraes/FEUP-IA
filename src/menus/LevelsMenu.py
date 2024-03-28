@@ -4,11 +4,22 @@ from src import GameController
 
 
 class LevelsMenu(BaseMenu):
+
+    """ Initializes the levels menu with game settings and background.
+        @param screen: The main game screen or surface where the menu will be drawn.
+        @param screen_width: The width of the screen in pixels.
+        @param screen_height: The height of the screen in pixels.
+        @param mode: The game mode, determining how the game logic and interactions are handled.
+        @param turn: Indicates who starts the game, the player or the computer.
+    """
     def __init__(self, screen, screen_width, screen_height, mode, turn):
         super().__init__(screen, screen_width, screen_height, './imgs/gameLevels.png')
         self.mode = mode
         self.turn = turn
 
+    """ Runs the levels menu, allowing the user to select a difficulty level for the game.
+        Handles user input to select levels and start the game or go back to the previous menu.
+    """
     def run(self):
         running = True
         while running:
@@ -39,6 +50,11 @@ class LevelsMenu(BaseMenu):
             self.handle_events()
             self.update_display()
 
+    """ Starts a new game with the selected difficulty level.
+        @param mode: The game mode, determining how the game logic and interactions are handled.
+        @param difficulty: The difficulty level selected for the computer opponent.
+        @param turn: Indicates who starts the game, the player or the computer.
+    """
     def start_game(self, mode, difficulty, turn):
         game = GameController.GameController(600, 600, 8, mode, difficulty, None, turn)
         game.run()

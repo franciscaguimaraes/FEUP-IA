@@ -4,6 +4,12 @@ import pygame
 
 
 class GameView:
+    """ Initializes the GameView with the game logic, dimensions for the game board, and graphical settings.
+        @param game_logic: An instance of the game's logic class to interface with the game's mechanics.
+        @param width: The width of the game board in pixels.
+        @param height: The height of the game board in pixels.
+    """
+
     def __init__(self, game_logic, width, height):
         self.game_logic = game_logic
         self.width = width
@@ -23,6 +29,10 @@ class GameView:
         self.button_rect = pygame.Rect(0, 0, 0, 0)
         self.total_width = width + self.menu_width
         self.screen = pygame.display.set_mode((self.total_width, height))
+
+    """ Draws the game board based on the current state of the game logic.
+        Each cell of the board is drawn, and the colors of cells are updated according to their state. 
+    """
 
     def draw_board(self):
         self.screen.fill(self.GRAY)
@@ -47,6 +57,10 @@ class GameView:
                 if not self.game_logic.board[j][i] == 'N':
                     pygame.draw.rect(self.screen, line_color, (x, y, cell_size, cell_size), 1)
 
+    """ Draws the pieces on the board according to their positions in the game logic.
+        Different colors represent different player pieces, and the pieces are stacked within the cells.
+    """
+
     def draw_pieces(self):
         board = self.game_logic.board
         cell_size = self.width // len(board[0])
@@ -68,6 +82,10 @@ class GameView:
                             pygame.draw.rect(self.screen, self.BLACK,
                                              (x, y - k * piece_height, piece_width, piece_height), 1)  # Draw border
 
+    """Draws the side menu next to the game board. This menu includes game information such as the current player's 
+    turn, the number of pieces in play, and buttons for game actions like playing a reserved piece.
+    """
+
     def draw_side_menu(self):
         pygame.draw.rect(self.screen, self.WHITE, (self.width, 0, self.menu_width, self.height))
         self.draw_text('Focus Game', self.font, self.BLACK, self.width + 70, 20)
@@ -84,15 +102,27 @@ class GameView:
         self.draw_reserved_button()
         self.display_hint()
 
+    """ Draws text into the game screen.
+        @param text: The text string to display.
+        @param font: The pygame font object to use for rendering the text.
+        @param color: The color of the text.
+        @param x: The x-coordinate of the top-left corner of the text.
+        @param y: The y-coordinate of the top-left corner of the text.
+    """
+
     def draw_text(self, text, font, color, x, y):
         text = font.render(text, 1, color)
         textrect = text.get_rect()
         textrect.topleft = (x, y)
         self.screen.blit(text, textrect)
 
+    """ Draws the button for playing a reserved piece if the current player has any reserved pieces available.
+        This button is only interactive and visible if the conditions are met.
+    """
+
     def draw_reserved_button(self):
         if (self.game_logic.turn == 'B' and self.game_logic.blue_reserved > 0) or (self.game_logic.turn == 'R'
-                                                                            and self.game_logic.red_reserved > 0):
+                                                                                   and self.game_logic.red_reserved > 0):
             button_x = self.width + 50
             button_y = 400
             button_width = 200
@@ -105,6 +135,9 @@ class GameView:
 
             self.draw_text('Play Reserved', self.font, self.WHITE, button_x + 20, button_y + 15)
 
+    """ Displays the winner of the game by loading and showing an image representing the winning player.
+        @param winner: A string indicating the winner ('B' for Blue, 'R' for Red).
+    """
     def display_winner(self, winner):
         # Select the correct image path based on the winner
         if winner == 'B':
@@ -124,6 +157,10 @@ class GameView:
 
         pygame.display.flip()  # Update the full display Surface to the screen
 
+    """ Highlights the cells on the board where the current player can move or place a piece.
+        @param valid_moves: A list of tuples indicating the valid moves available.
+        @param reserved: A boolean flag indicating whether the highlighting is for placing a reserved piece.
+    """
     def highlight_moves(self, valid_moves, reserved=False):
 
         if reserved:
@@ -141,6 +178,11 @@ class GameView:
 
             pygame.draw.rect(self.screen, highlight_color, (x, y, cell_size, cell_size), width)
 
+    """ Central method to redraw the entire game screen, including the board, pieces, side menu, and any highlights.
+        @param valid_moves: Optional. A list of valid moves if a piece is selected.
+        @param selected_piece: Optional. Indicates if a piece is currently selected.
+        @param placing_reserved: Optional. Indicates if placing a reserved piece is the current action.
+    """
     def draw_everything(self, valid_moves=None, selected_piece=None, placing_reserved=False):
         self.screen.fill(self.BLACK)
         self.draw_board()
@@ -157,6 +199,9 @@ class GameView:
 
         pygame.display.flip()  # Update the screen with everything drawn
 
+    """ Optionally prints a hint to the console. This feature is not directly related to the game's GUI.
+        @param display_hint: A boolean flag to control the display of the hint. If True, a hint is printed to the console.
+    """
     def display_hint(self, display_hint=False):
         if display_hint:
             print("Displaying hint")

@@ -8,6 +8,16 @@ from GameView import GameView
 
 
 class GameController:
+    """ Initializes the game controller with settings for the game.
+        @param width: The width of the game window in pixels.
+        @param height: The height of the game window in pixels.
+        @param board_size: The size of the game board (number of cells in width and height).
+        @param mode: The game mode (1: Player vs Player, 2: Player vs Computer, 3: Computer vs Computer).
+        @param difficulty1: The difficulty level for the first player (or only player in PvC mode).
+        @param difficulty2: The difficulty level for the second player (in CvC mode).
+        @param turn: The starting player ('B' for Blue, 'R' for Red).
+    """
+
     def __init__(self, width, height, board_size=8, mode=None, difficulty1=None, difficulty2=None, turn='B'):
         self.width, self.height = width, height
         self.mode, self.difficulty1, self.difficulty2 = mode, difficulty1, difficulty2
@@ -22,8 +32,10 @@ class GameController:
         self.placing_reserved = False
         self.winner = None
         self.last_move_time = None
-        self.game_logic.turn = turn # Set the starting player color, human player always starts
+        self.game_logic.turn = turn  # Set the starting player color, human player always starts
 
+    """ The main loop of the game. Handles game updates, event handling, and rendering until the game ends.
+    """
     def run(self):
         while self.running:
             self.game_logic.count_pieces()
@@ -35,6 +47,10 @@ class GameController:
 
         self.cleanup()
 
+    """ Checks if the reserved button is clicked.
+        @param mouse_pos: The position of the mouse click.
+        @return: True if the reserved button is clicked, False otherwise.
+    """
     def check_reserved_button(self, mouse_pos):
         if hasattr(self.game_view, 'button_rect') and self.game_view.button_rect.collidepoint(mouse_pos):
             if (self.game_logic.turn == 'B' and self.game_logic.blue_reserved > 0) or (
@@ -43,6 +59,8 @@ class GameController:
             return True
         return False
 
+    """ Handles all events captured by pygame, such as quitting the game or mouse clicks.
+    """
     def handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -50,6 +68,8 @@ class GameController:
             elif event.type == pygame.MOUSEBUTTONDOWN and not self.game_ended:
                 self.handle_mouse_click()
 
+    """ Handles mouse click events within the game, determining actions based on game state and click location.
+    """
     def handle_mouse_click(self):
         mouse_pos = pygame.mouse.get_pos()
 
@@ -69,6 +89,11 @@ class GameController:
             self.game_view.draw_everything(self.valid_moves, self.selected_piece, self.placing_reserved)
             pygame.display.flip()
 
+    """ Handles the placement of a reserved piece onto the board.
+        @param row: The row where the piece is to be placed.
+        @param col: The column where the piece is to be placed.
+        @return: True if the placement was successful, False otherwise.
+    """
     def handle_reserved_placement(self, row, col):
         if row is not None and col is not None:
             success = self.game_logic.move_reserved_piece((row, col), self.game_logic.turn)
@@ -83,6 +108,10 @@ class GameController:
                 print("Invalid move")
             return success
 
+    """ Handles the selection of a piece or the movement of a selected piece.
+        @param row: The row of the selected or target cell.
+        @param col: The column of the selected or target cell.
+    """
     def handle_piece_selection_or_movement(self, row, col):
         if self.selected_piece:
             if (row, col) in self.valid_moves:
@@ -110,8 +139,10 @@ class GameController:
                 self.selected_piece = (row, col)
                 self.valid_moves = self.game_logic.get_valid_moves_for_position(row, col)
 
+    """ Updates the game state, including checking for and handling computer moves in PvC or CvC modes.
+    """
     def update_game_state(self):
-        if self.mode is 2 and self.game_logic.player == 'computer':
+        if self.mode == 2 and self.game_logic.player == 'computer':
             self.game_view.draw_everything(self.valid_moves, self.selected_piece, self.placing_reserved)
             self.handle_computer_move()
 
@@ -122,6 +153,8 @@ class GameController:
         if not self.game_ended:
             self.check_for_winner()
 
+    """ Handles the logic for computer moves, including determining moves based on the mode and difficulty settings.
+    """
     def handle_computer_move(self):
 
         if self.mode == 2:
@@ -132,11 +165,15 @@ class GameController:
         pygame.time.delay(1000)
         self.game_logic.switch_turns()
 
+    """ Checks if there's a winner and updates the game state accordingly.
+    """
     def check_for_winner(self):
         self.winner = self.game_logic.check_winner()
         if self.winner:
             self.game_ended = True
 
+    """ Renders the current state of the game to the display.
+    """
     def render(self):
         self.game_view.draw_everything(self.valid_moves, self.selected_piece, self.placing_reserved)
 
@@ -147,6 +184,10 @@ class GameController:
 
         pygame.display.flip()
 
+    """ Converts mouse position to cell coordinates on the board.
+        @param mouse_pos: The position of the mouse click.
+        @return: A tuple (row, col) representing the cell under the mouse. Returns (None, None) if outside the board.
+    """
     def get_cell_from_mouse_pos(self, mouse_pos):
         cell_size = self.width // self.board_size
         x, y = mouse_pos
@@ -158,6 +199,8 @@ class GameController:
         else:
             return None, None
 
+    """ Cleans up resources and exits the game.
+    """
     def cleanup(self):
         pygame.quit()
         sys.exit()

@@ -3,9 +3,13 @@ import random
 import pygame
 
 from src.AI.MCTS import MCTS
-
+from src.AI.Minimax import Minimax
 
 class GameLogic:
+
+    """ Initializes the game logic, including the board size and the starting state of the game.
+        @param board_size: Size of the game board (e.g., 8 for a 8x8 board or 6 for a 6x6).
+    """
     def __init__(self, board_size):
         self.board_size = board_size
         self.board = None
@@ -17,6 +21,8 @@ class GameLogic:
         self.blue_pieces = None
         self.red_pieces = None
 
+    """ Initializes the game board based on the predefined size. Sets up the starting positions of the pieces.
+    """
     def initialize_board(self):
         if self.board_size == 8:
 
@@ -56,8 +62,10 @@ class GameLogic:
 
         self.count_pieces()
 
+    """ Creates a deep copy of the current game state, including the board, turn, reserved pieces, and piece counts.
+        @return: A new instance of GameLogic representing the current game state.
+    """
     def copy(self):
-        # Create a copy of the current game state
         new_board = GameLogic(self.board_size)
         new_board.board = [row.copy() for row in self.board]
         new_board.turn = self.turn
@@ -67,6 +75,8 @@ class GameLogic:
         new_board.red_pieces = self.red_pieces
         return new_board
 
+    """ Counts the total number of blue and red pieces on the board.
+    """
     def count_pieces(self):
         self.blue_pieces = 0
         self.red_pieces = 0
@@ -77,6 +87,11 @@ class GameLogic:
                 self.blue_pieces += cell.count('B')
                 self.red_pieces += cell.count('R')
 
+    """ Calculates all valid moves for a piece at a given position on the board.
+        @param row: Row of the piece.
+        @param col: Column of the piece.
+        @return: A list of tuples representing valid move positions (row, col).
+    """
     def get_valid_moves_for_position(self, row, col):
         stack = self.board[row][col]
         valid_moves = []
@@ -98,6 +113,10 @@ class GameLogic:
 
         return valid_moves
 
+    """ Determines all valid moves for the current player.
+        @param player: The player ('B' for Blue, 'R' for Red) to calculate moves for.
+        @return: A list of valid moves, where each move is a tuple (from_row, from_col, to_row, to_col).
+    """
     def get_valid_moves_for_player(self, player):
         valid_moves = []
         for row in range(self.board_size):
@@ -108,6 +127,11 @@ class GameLogic:
                         valid_moves.append((row, col, to_row, to_col))  # Add the move to the list of valid moves
         return valid_moves
 
+    """ Updates the counts of pieces on the board and reserved pieces after a move.
+        @param player: The player making the move ('B' or 'R').
+        @param capture_count: The number of opponent pieces captured in the move.
+        @param reserve_count: The number of pieces moved to reserve in the move.
+    """
     def update_piece_counts(self, player, capture_count, reserve_count):
         if player == 'B':
             self.blue_reserved += reserve_count
@@ -116,11 +140,24 @@ class GameLogic:
             self.red_reserved += reserve_count
             self.blue_pieces -= capture_count
 
+    """ Calculates the distance between two positions on the board.
+        @param from_pos: The starting position (row, col).
+        @param to_pos: The ending position (row, col).
+        @return: The distance as an integer.
+    """
     def calculate_distance(self, from_pos, to_pos):
         from_row, from_col = from_pos
         to_row, to_col = to_pos
         return abs(to_row - from_row) + abs(to_col - from_col)
 
+    """ Handles the logic for moving a stack of pieces from one position to another.
+        @param from_pos: The starting position of the move (row, col), or None for a reserved move.
+        @param to_pos: The ending position of the move (row, col).
+        @param player: The player ('B' or 'R') making the move.
+        @param moving_pieces: The pieces being moved.
+        @param distance: Optional. The distance of the move, used to limit the number of pieces moved.
+        @return: A tuple (capture_count, reserve_count) representing the number of pieces captured and reserved.
+    """
     def move_logic(self, from_pos, to_pos, player, moving_pieces, distance=None):
         to_row, to_col = to_pos
 
@@ -146,6 +183,10 @@ class GameLogic:
         self.board[to_row][to_col] = ''.join(final_stack) if final_stack else 'X'
         return capture_count, reserve_count
 
+    """ Moves a stack of pieces from one position to another.
+        @param from_pos: The starting position (row, col).
+        @param to_pos: The ending position (row, col).
+    """
     def move_stack(self, from_pos, to_pos):
         from_row, from_col = from_pos
         moving_stack = self.board[from_row][from_col]
@@ -156,11 +197,19 @@ class GameLogic:
         capture_count, reserve_count = self.move_logic(from_pos, to_pos, player_moving, moving_stack, distance)
         self.update_piece_counts(player_moving, capture_count, reserve_count)
 
+    """ Places a reserved piece into the board.
+        @param to_pos: The position (row, col) where the piece is to be placed.
+        @param player: The player ('B' or 'R') making the move.
+        @return: True, indicating the move was successful.
+    """
     def move_reserved_piece(self, to_pos, player):
         capture_count, reserve_count = self.move_logic(None, to_pos, player, player)
         self.update_piece_counts(player, capture_count, reserve_count - 1)  # Subtract one since we're using one reserve
         return True
 
+    """ Checks if the game has a winner based on the current state of the board.
+        @return: 'B' or 'R' if there's a winner, or None if the game is still ongoing.
+    """
     def check_winner(self):
 
         top_pieces = {'B': False, 'R': False}  # Track presence of top pieces for both players
@@ -193,10 +242,18 @@ class GameLogic:
                 return 'B'
             return None
 
+    """ Switches the turn from one player to the other.
+    """
     def switch_turns(self):
         self.turn = 'B' if self.turn == 'R' else 'R'  # Switch turns between Blue and Red
         self.player = 'human' if self.player == 'computer' else 'computer'  # Switch player between human and computer
 
+    """ Highlights potential moves and performs a move for the computer player.
+        @param from_pos: The starting position of the move, or None for a reserved move.
+        @param to_pos: The ending position of the move.
+        @param is_reserved: Whether the move is using a reserved piece.
+        @param game_view: The GameView instance for rendering.
+    """
     def highlight_and_move_computer(self, from_pos, to_pos, is_reserved, game_view):
         if is_reserved:
             game_view.highlight_moves(
@@ -214,6 +271,12 @@ class GameLogic:
         else:
             self.move_stack(from_pos, to_pos)
 
+    """ Determines and executes a move for the computer player based on the difficulty level.
+        @param mode: The game mode (2 for Player vs Computer, 3 for Computer vs Computer).
+        @param game_view: The GameView instance for rendering.
+        @param difficulty1: The difficulty level for the first computer player.
+        @param difficulty2: The difficulty level for the second computer player (in CvC mode).
+    """
     def computer_move(self, mode, game_view, difficulty1, difficulty2):
 
         # if mode is 2 - only one computer player - only one difficulty
@@ -282,13 +345,20 @@ class GameLogic:
                     else:
                         print("No valid moves available")
 
-        elif difficulty == 3:
+        elif difficulty == 3:  # Hard - Minimax
             # Placeholder for Minimax algorithm
             pass
 
+    """ Checks if the game is over (i.e, a winner exists).
+        @return: True if the game is over, False otherwise.
+    """
     def check_gameover(self):
         return self.check_winner() is not None  # Game is over if there's a winner
 
+    """ Determines the game result from the perspective of a specific player.
+        @param player: The player ('B' or 'R') to check the result for.
+        @return: 1 for a win, -1 for a loss, 0 for an ongoing game.
+    """
     def get_result(self, player):
         winner = self.check_winner()  # Check the winner
         if winner == player:  # If the winner is the player

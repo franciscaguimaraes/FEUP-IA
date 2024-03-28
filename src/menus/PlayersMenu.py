@@ -6,9 +6,17 @@ from .PlayerComputerPieceChoice import PlayerComputerPieceChoice
 
 
 class PlayersMenu(BaseMenu):
+
+    """ Initializes the players menu with a background image and settings for the game's player selection menu.
+        @param screen: The main game screen or surface where the menu will be drawn.
+        @param screen_width: The width of the screen in pixels.
+        @param screen_height: The height of the screen in pixels.
+    """
     def __init__(self, screen, screen_width, screen_height):
         super().__init__(screen, screen_width, screen_height, './imgs/playersMenu.png')
 
+    """ Runs the players menu, displaying the menu options and handling user interactions.
+    """
     def run(self):
         running = True
         while running:

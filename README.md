@@ -10,10 +10,10 @@
 ## Installation and Execution instructions
 
 ### Requirements:
-- Python
-- Pygame
+- Python (`pip install python`)
+- Pygame (`pip install pygame`)
 
 ### How to run the Game:
 
-To be able to open the game, you need to install Python (latest version) and download the source code. Once you have done it, open your windows terminal and go to the folder you downloaded. 
-Finally, run 'cd src' and, after that, run 'python main.py'.
+To be able to open the game, you need to install Python (latest version) and download the source code. Once you have done it, open your Windows terminal and go to the folder you downloaded. 
+Finally, run `cd src` and, after that, run `python main.py`.

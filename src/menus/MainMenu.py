@@ -6,9 +6,17 @@ from .PlayersMenu import PlayersMenu
 
 
 class MainMenu(BaseMenu):
+
+    """ Initializes the main menu with a background image and settings for the game's main menu.
+        @param screen: The main game screen or surface where the menu will be drawn.
+        @param screen_width: The width of the screen in pixels.
+        @param screen_height: The height of the screen in pixels.
+    """
     def __init__(self, screen, screen_width, screen_height):
         super().__init__(screen, screen_width, screen_height, './imgs/menuBackground.png')
 
+    """ Runs the main menu, displaying the menu options and handling user interactions.
+    """
     def run(self):
         while True:
             self.screen.blit(self.background_image, (0, 0))
