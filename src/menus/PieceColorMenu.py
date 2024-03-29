@@ -3,17 +3,17 @@ from .BaseMenu import BaseMenu
 from src import GameController
 
 class PieceColorMenu(BaseMenu):
-
     """ Initializes the piece color selection menu with a background image and settings for the game's piece color selection menu.
-        @param screen: The main game screen or surface where the menu will be drawn.
-        @param screen_width: The width of the screen in pixels.
-        @param screen_height: The height of the screen in pixels.
-    """
-    def __init__(self, screen, screen_width, screen_height):
+            @param screen: The main game screen or surface where the menu will be drawn.
+            @param screen_width: The width of the screen in pixels.
+            @param screen_height: The height of the screen in pixels.
+        """
+    def __init__(self, screen, screen_width, screen_height, board_size):
         super().__init__(screen, screen_width, screen_height, './imgs/selectColorMenu.png')
+        self.board_size = board_size
 
     """ Runs the piece color selection menu, displaying the menu options and handling user interactions.
-    """
+        """
     def run(self):
         running = True
         while running:
@@ -42,10 +42,10 @@ class PieceColorMenu(BaseMenu):
             self.update_display()
 
     """ Starts a new game with the selected piece color.
-        @param mode: The game mode, which is currently hardcoded to 1, implying a specific game mode.
-        @param difficulty: Currently unused, placeholder for future game difficulty settings.
-        @param turn: Indicates who starts the game, either 'B' for Blue or 'R' for Red.
-    """
+           @param mode: The game mode, which is currently hardcoded to 1, implying a specific game mode.
+           @param difficulty: Currently unused, placeholder for future game difficulty settings.
+           @param turn: Indicates who starts the game, either 'B' for Blue or 'R' for Red.
+       """
     def start_game(self, mode, difficulty, turn):
-        game = GameController.GameController(600, 600, 8, mode, difficulty, None, turn)
+        game = GameController.GameController(600, 600, self.board_size, mode, difficulty, None, turn)
         game.run()

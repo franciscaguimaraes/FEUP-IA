@@ -1,21 +1,18 @@
 import pygame
 from .BaseMenu import BaseMenu
-from src import GameController
-from .LevelsMenu import LevelsMenu
+from .PlayersMenu import PlayersMenu
 
-class PlayerComputerPieceChoice(BaseMenu):
 
-    """ Initializes the player and computer piece color choice menu with a background image and settings.
+class BoardSizeMenu(BaseMenu):
+    """ Initializes the board size menu with a background image and settings.
             @param screen: The main game screen or surface where the menu will be drawn.
             @param screen_width: The width of the screen in pixels.
             @param screen_height: The height of the screen in pixels.
         """
-    def __init__(self, screen, screen_width, screen_height, board_size):
-        super().__init__(screen, screen_width, screen_height, './imgs/selectColorMenu.png')
-        self.board_size = board_size
+    def __init__(self, screen, screen_width, screen_height):
+        super().__init__(screen, screen_width, screen_height, './imgs/boardSize.png')
 
-    """ Runs the piece color choice menu, displaying the menu options and handling user interactions.
-        """
+    """ Runs the board size menu, displaying the menu options and handling user interactions. """
     def run(self):
         running = True
         while running:
@@ -28,12 +25,12 @@ class PlayerComputerPieceChoice(BaseMenu):
 
             if button_1.collidepoint((mx, my)):  # Start first
                 if self.click:
-                    levels_menu = LevelsMenu(self.screen, self.screen_width, self.screen_height, 2, 'B', self.board_size)
-                    levels_menu.run()
+                    players_menu = PlayersMenu(self.screen, self.screen_width, self.screen_height, 8)
+                    players_menu.run()
             if button_2.collidepoint((mx, my)):  # Start second
                 if self.click:
-                    levels_menu = LevelsMenu(self.screen, self.screen_width, self.screen_height, 2, 'R', self.board_size)
-                    levels_menu.run()
+                    players_menu = PlayersMenu(self.screen, self.screen_width, self.screen_height, 6)
+                    players_menu.run()
             if button_4.collidepoint((mx, my)):
                 if self.click:
                     running = False

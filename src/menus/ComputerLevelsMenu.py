@@ -2,23 +2,22 @@ import pygame
 from .BaseMenu import BaseMenu
 from src import GameController
 
-
-class ComputerLevelsMenu(BaseMenu):
-
-    """ Initializes the computer levels menu with UI elements for selecting difficulty levels.
+""" Initializes the computer levels menu with UI elements for selecting difficulty levels.
         @param screen: The main game screen or surface where the menu will be drawn.
         @param screen_width: The width of the screen in pixels.
         @param screen_height: The height of the screen in pixels.
         @param mode: The game mode that determines the type of match (Player vs Computer, Computer vs Computer).
     """
-    def __init__(self, screen, screen_width, screen_height, mode):
+class ComputerLevelsMenu(BaseMenu):
+    def __init__(self, screen, screen_width, screen_height, mode, board_size):
         super().__init__(screen, screen_width, screen_height, './imgs/computerLevels.png')
         self.mode = mode
         self.levelB = 0
         self.levelR = 0
+        self.board_size = board_size
 
     """ Runs the computer levels menu, handling user input to select difficulty levels and start the game.
-    """
+        """
     def run(self):
         running = True
         while running:
@@ -70,12 +69,12 @@ class ComputerLevelsMenu(BaseMenu):
             self.handle_events()
             self.update_display()
 
-    # def __init__(self, width, height, board_size=8, mode=None, difficulty1=None, difficulty2=None, turn='B'):
+#     def __init__(self, width, height, board_size=8, mode=None, difficulty1=None, difficulty2=None, turn='B'):
     """ Starts the game with the selected difficulty levels for the computer players.
-        @param mode: The game mode to be used.
-        @param difficulty1: The difficulty level for the first computer player.
-        @param difficulty2: The difficulty level for the second computer player.
-    """
+            @param mode: The game mode to be used.
+            @param difficulty1: The difficulty level for the first computer player.
+            @param difficulty2: The difficulty level for the second computer player.
+        """
     def start_game(self, mode, difficulty1, difficulty2):
-        game = GameController.GameController(600, 600, 8, mode, difficulty1, difficulty2)
+        game = GameController.GameController(600, 600, self.board_size, mode, difficulty1, difficulty2)
         game.run()
