@@ -30,9 +30,9 @@ class LevelsMenu(BaseMenu):
             self.screen.blit(self.background_image, (0, 0))
             mx, my = pygame.mouse.get_pos()
 
-            button_1 = pygame.Rect(450, 280, 350, 80)  # posx, posy, largura, altura
-            button_2 = pygame.Rect(450, 430, 350, 80)
-            button_3 = pygame.Rect(450, 580, 350, 80)
+            button_1 = pygame.Rect(450, 280, 355, 85)  # posx, posy, largura, altura
+            button_2 = pygame.Rect(450, 426, 355, 85)
+            button_3 = pygame.Rect(450, 576, 355, 85)
             button_4 = pygame.Rect(70, 760, 250, 50)
 
             if button_1.collidepoint((mx, my)):  # level 1
@@ -68,6 +68,6 @@ class LevelsMenu(BaseMenu):
             @param turn: Indicates who starts the game, the player or the computer.
         """
     def start_game(self, mode, difficulty, turn):
-        pygame.time.wait(1000)
+        pygame.time.wait(500)
         game = GameController.GameController(600, 600, self.board_size, mode, difficulty, None, turn)
         game.run()

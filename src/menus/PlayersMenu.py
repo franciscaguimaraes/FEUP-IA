@@ -4,12 +4,19 @@ from .ComputerLevelsMenu import ComputerLevelsMenu
 from .PieceColorMenu import PieceColorMenu
 from .PlayerComputerPieceChoice import PlayerComputerPieceChoice
 
-
+"""
+    Initializes the player menu with game settings and background.
+    @param screen: The main game screen or surface where the menu will be drawn.
+    @param screen_width: The width of the screen in pixels.
+    @param screen_height: The height of the screen in pixels.
+    @param board_size: The size of the game board, determining the number of rows and columns.
+"""
 class PlayersMenu(BaseMenu):
     def __init__(self, screen, screen_width, screen_height, board_size):
         super().__init__(screen, screen_width, screen_height, './imgs/playersMenu.png')
         self.board_size = board_size
 
+    """ Runs the player menu, allowing the user to select the type of match to play."""
     def run(self):
         running = True
         while running:
@@ -23,15 +30,20 @@ class PlayersMenu(BaseMenu):
 
             if button_1.collidepoint((mx, my)):  # player vs player
                 if self.click:
+                    pygame.time.wait(200)
                     colors_menu = PieceColorMenu(self.screen, self.screen_width, self.screen_height, self.board_size)
                     colors_menu.run()
             if button_2.collidepoint((mx, my)):  # player vs computer
                 if self.click:
-                    player_computer_menu = PlayerComputerPieceChoice(self.screen, self.screen_width, self.screen_height, self.board_size)
+                    pygame.time.wait(200)
+                    player_computer_menu = PlayerComputerPieceChoice(self.screen, self.screen_width, self.screen_height,
+                                                                     self.board_size)
                     player_computer_menu.run()
             if button_3.collidepoint((mx, my)):  # computer vs computer
                 if self.click:
-                    computer_computer_menu = ComputerLevelsMenu(self.screen, self.screen_width, self.screen_height, 3, self.board_size)
+                    pygame.time.wait(200)
+                    computer_computer_menu = ComputerLevelsMenu(self.screen, self.screen_width, self.screen_height, 3,
+                                                                self.board_size)
                     computer_computer_menu.run()
             if button_4.collidepoint((mx, my)):
                 if self.click:

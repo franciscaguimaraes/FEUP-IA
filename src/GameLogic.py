@@ -3,12 +3,10 @@ import random
 import pygame
 
 from src.AI.MCTS import MCTS
-from src.AI.Minimax import Minimax
 from src.AI.MinimaxWithAlphaBeta import MinimaxWithAlphaBeta
 
 
 class GameLogic:
-
     """ Initializes the game logic, including the board size and the starting state of the game.
         @param board_size: Size of the game board (e.g., 8 for a 8x8 board or 6 for a 6x6).
     """
@@ -19,7 +17,7 @@ class GameLogic:
         self.turn = 'B'  # Blue player as default
         self.player = 'human'  # Human player as default
         self.mode = mode
-        self.blue_reserved = 1
+        self.blue_reserved = 0
         self.red_reserved = 1
         self.blue_pieces = None
         self.red_pieces = None
@@ -43,11 +41,11 @@ class GameLogic:
 
             # self.board = [
             #     ['N', 'N', 'X', 'X', 'X', 'X', 'N', 'N'],
-            #     ['N', 'X', 'R', 'X', 'B', 'X', 'X', 'N'],
+            #     ['N', 'RB', 'RB', 'X', 'RBB', 'R', 'X', 'N'],
+            #     ['X', 'X', 'X', 'RB', 'X', 'X', 'X', 'X'],
             #     ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
             #     ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
-            #     ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
-            #     ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
+            #     ['X', 'X', 'RB', 'X', 'RB', 'X', 'X', 'X'],
             #     ['N', 'X', 'X', 'X', 'X', 'X', 'X', 'N'],
             #     ['N', 'N', 'X', 'X', 'X', 'X', 'N', 'N']
             # ]
@@ -95,6 +93,7 @@ class GameLogic:
         @param col: Column of the piece.
         @return: A list of tuples representing valid move positions (row, col).
     """
+
     def get_valid_moves_for_position(self, row, col):
         stack = self.board[row][col]
         valid_moves = []
@@ -337,13 +336,7 @@ class GameLogic:
                 if self.red_reserved > 0:  # BUT there are reserved pieces
 
                     # Choose higher stack controlled by opponent
-                    max_stack = 0
-                    max_stack_pos = None
-                    for i in range(self.board_size):
-                        for j in range(self.board_size):
-                            if self.board[i][j][-1] != self.turn and len(self.board[i][j]) > max_stack:
-                                max_stack = len(self.board[i][j])
-                                max_stack_pos = (i, j)
+                    max_stack_pos = self.get_maxstack_opponent_pos(self.turn)
 
                     if max_stack_pos:
                         to_row, to_col = max_stack_pos
@@ -365,14 +358,34 @@ class GameLogic:
 
             if best_move:
                 from_row, from_col, to_row, to_col = best_move
-                if (from_row, from_col) == (None, None):  # Reserved piece move
-                    self.highlight_and_move_computer(None, (to_row, to_col), is_reserved=True, game_view=game_view)
-                else:  # Regular move
-                    self.highlight_and_move_computer((from_row, from_col), (to_row, to_col), is_reserved=False,
-                                                     game_view=game_view)
+                self.highlight_and_move_computer((from_row, from_col), (to_row, to_col), is_reserved=False,
+                                                 game_view=game_view)
             else:
-                print("No valid moves available")
-            pass
+                if self.turn == 'R' and self.red_reserved > 0:
+
+                    # Choose higher stack controlled by opponent
+                    max_stack_pos = self.get_maxstack_opponent_pos(self.turn)
+
+                    if max_stack_pos:
+                        to_row, to_col = max_stack_pos
+
+                        self.highlight_and_move_computer(None, (to_row, to_col), is_reserved=True, game_view=game_view)
+                        pygame.display.flip()
+                    else:
+                        print("No valid moves available")
+
+                elif self.turn == 'B' and self.blue_reserved > 0:
+
+                    # Choose higher stack controlled by opponent
+                    max_stack_pos = self.get_maxstack_opponent_pos(self.turn)
+
+                    if max_stack_pos:
+                        to_row, to_col = max_stack_pos
+
+                        self.highlight_and_move_computer(None, (to_row, to_col), is_reserved=True, game_view=game_view)
+                        pygame.display.flip()
+                    else:
+                        print("No valid moves available")
 
     """ Checks if the game is over (i.e, a winner exists).
         @return: True if the game is over, False otherwise.
@@ -392,3 +405,25 @@ class GameLogic:
             return 0  # Game not done
         else:
             return -1  # Loss
+
+    """ Determines the position of the opponent's stack with the maximum length. If multiple stacks have the same length,
+        a random position is chosen.
+        @param player: The player ('B' or 'R') to find the opponent's stack for.
+        @return: The position (row, col) of the opponent's stack with the maximum length.
+    """
+    def get_maxstack_opponent_pos(self, player):
+        max_stack = 0
+        max_stack_positions = []
+        for i in range(self.board_size):
+            for j in range(self.board_size):
+                stack_length = len(self.board[i][j])
+
+                if self.board[i][j][-1] != player:
+                    if stack_length > max_stack:
+                        max_stack = stack_length
+                        max_stack_positions = [(i, j)]
+                    elif stack_length == max_stack:
+                        max_stack_positions.append((i, j))
+
+        if max_stack_positions:
+            return random.choice(max_stack_positions)
