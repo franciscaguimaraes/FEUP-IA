@@ -12,8 +12,11 @@ class ComputerLevelsMenu(BaseMenu):
     def __init__(self, screen, screen_width, screen_height, mode, board_size):
         super().__init__(screen, screen_width, screen_height, './imgs/computerLevels.png')
         self.mode = mode
+        self.screen = screen
         self.levelB = 0
         self.levelR = 0
+        self.button_blue = None
+        self.button_red = None
         self.board_size = board_size
 
     """ Runs the computer levels menu, handling user input to select difficulty levels and start the game.
@@ -24,13 +27,13 @@ class ComputerLevelsMenu(BaseMenu):
             self.screen.blit(self.background_image, (0, 0))
             mx, my = pygame.mouse.get_pos()
 
-            button_1 = pygame.Rect(230, 370, 280, 70)  # posx, posy, largura, altura
-            button_2 = pygame.Rect(230, 480, 280, 70)
-            button_3 = pygame.Rect(230, 600, 280, 70)
+            button_1 = pygame.Rect(230, 368, 290, 71)  # posx, posy, largura, altura
+            button_2 = pygame.Rect(230, 482, 290, 71)
+            button_3 = pygame.Rect(230, 600, 290, 71)
 
-            button_4 = pygame.Rect(725, 370, 280, 70)
-            button_5 = pygame.Rect(725, 480, 280, 70)
-            button_6 = pygame.Rect(725, 600, 280, 70)
+            button_4 = pygame.Rect(725, 368, 290, 71)
+            button_5 = pygame.Rect(725, 482, 290, 71)
+            button_6 = pygame.Rect(725, 600, 290, 71)
 
             button_7 = pygame.Rect(70, 760, 250, 50)
 
@@ -38,40 +41,52 @@ class ComputerLevelsMenu(BaseMenu):
             if button_1.collidepoint((mx, my)):  # level 1
                 if self.click:
                     self.levelB = 1
-                    print(self.levelB)
+                    self.button_blue = button_1
             if button_2.collidepoint((mx, my)):  # level 2
                 if self.click:
                     self.levelB = 2
-                    print(self.levelB)
-
+                    self.button_blue = button_2
             if button_3.collidepoint((mx, my)):  # level 3
                 if self.click:
                     self.levelB = 3
-                    print(self.levelB)
-
+                    self.button_blue = button_3
 
             # buttons for computer RED levels
             if button_4.collidepoint((mx, my)):  # level 1
                 if self.click:
                     self.levelR = 1
-                    print(self.levelR)
+                    self.button_red = button_4
             if button_5.collidepoint((mx, my)):  # level 2
                 if self.click:
                     self.levelR = 2
-                    print(self.levelR)
-
+                    self.button_red = button_5
             if button_6.collidepoint((mx, my)):  # level 3
                 if self.click:
                     self.levelR = 3
-                    print(self.levelR)
-
+                    self.button_red = button_6
 
             # Back button
             if button_7.collidepoint((mx, my)):
                 if self.click:
                     running = False
 
+            # if i click on the buttons, the levels are set to the selected level and a rectangle is drawn around the selected level
+            if self.button_blue is not None:
+                pygame.draw.rect(self.screen, self.orange, self.button_blue, 5, border_radius=91)
+
+            if self.button_red is not None:
+                pygame.draw.rect(self.screen, self.orange, self.button_red, 5, border_radius=91)
+
+            # if i click outside of the buttons the levels are set to 0 and the rectangles are removed
+            if not button_1.collidepoint((mx, my)) and not button_2.collidepoint((mx, my)) and not button_3.collidepoint((mx, my)) and not button_4.collidepoint((mx, my)) and not button_5.collidepoint((mx, my)) and not button_6.collidepoint((mx, my)):
+                if self.click:
+                    self.levelB = 0
+                    self.button_blue = None
+                    self.levelR = 0
+                    self.button_red = None
+
             if self.levelB != 0 and self.levelR != 0:
+                pygame.display.flip()
                 self.start_game(self.mode, self.levelB, self.levelR)
 
             pygame.draw.rect(self.screen, self.orange, button_7)
@@ -85,5 +100,6 @@ class ComputerLevelsMenu(BaseMenu):
             @param difficulty2: The difficulty level for the second computer player.
         """
     def start_game(self, mode, difficulty1, difficulty2):
+        pygame.time.wait(1000)
         game = GameController.GameController(600, 600, self.board_size, mode, difficulty1, difficulty2)
         game.run()

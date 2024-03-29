@@ -1,6 +1,7 @@
 import math
 import random
 
+
 class MCTSNode:
     def __init__(self, game_state, turn, move=None, parent=None):
         self.game_state = game_state.copy()
