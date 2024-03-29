@@ -12,6 +12,9 @@ class GameView:
 
     def __init__(self, game_logic, width, height):
         self.game_logic = game_logic
+        self.mode = None
+        self.difficulty1 = None
+        self.difficulty2 = None
         self.width = width
         self.height = height
         self.screen = pygame.display.set_mode((width, height))
@@ -100,7 +103,33 @@ class GameView:
         self.draw_text(str(self.game_logic.blue_reserved), self.font, self.BLUE, self.width + 100, 330)
         self.draw_text(str(self.game_logic.red_reserved), self.font, self.RED, self.width + 180, 330)
         self.draw_reserved_button()
-        self.display_hint()
+        # self.display_hint()
+
+        small_font = pygame.font.Font(None, 23)  # smaller size
+
+        if self.difficulty1 == 1:
+            self.difficulty1 = 'Easy'
+        elif self.difficulty1 == 2:
+            self.difficulty1 = 'Medium'
+        elif self.difficulty1 == 3:
+            self.difficulty1 = 'Hard'
+
+        if self.difficulty2 == 1:
+            self.difficulty2 = 'Easy'
+        elif self.difficulty2 == 2:
+            self.difficulty2 = 'Medium'
+        elif self.difficulty2 == 3:
+            self.difficulty2 = 'Hard'
+
+        if self.mode == 1:
+            self.draw_text('Mode: Player vs Player', small_font, self.BLACK, self.width + 20, 530)
+        elif self.mode == 2:
+            self.draw_text('Mode: Player vs Computer', small_font, self.BLACK, self.width + 20, 530)
+            self.draw_text(f'Difficulty: {self.difficulty1}', small_font, self.BLACK, self.width + 20, 560)
+        elif self.mode == 3:
+            self.draw_text('Mode: Computer vs Computer', small_font, self.BLACK, self.width + 20, 500)
+            self.draw_text(f'Difficulty Computer Blue: {self.difficulty1}', small_font, self.BLACK, self.width + 20, 530)
+            self.draw_text(f'Difficulty Computer Red: {self.difficulty2}', small_font, self.BLACK, self.width + 20, 550)
 
     """ Draws text into the game screen.
         @param text: The text string to display.

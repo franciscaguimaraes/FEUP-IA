@@ -13,10 +13,13 @@ class LevelsMenu(BaseMenu):
            @param turn: Indicates who starts the game, the player or the computer.
        """
     def __init__(self, screen, screen_width, screen_height, mode, turn, board_size):
-        super().__init__(screen, screen_width, screen_height, './imgs/gameLevels.png')
+        super().__init__(screen, screen_width, screen_height, './imgs/difficultyLevels.png')
         self.mode = mode
+        self.screen = screen
         self.turn = turn
         self.board_size = board_size
+        self.button_clicked = None
+        self.difficulty = 0
 
     """ Runs the levels menu, allowing the user to select a difficulty level for the game.
             Handles user input to select levels and start the game or go back to the previous menu.
@@ -34,20 +37,28 @@ class LevelsMenu(BaseMenu):
 
             if button_1.collidepoint((mx, my)):  # level 1
                 if self.click:
-                    self.start_game(self.mode, 1, self.turn)
+                    self.button_clicked = button_1
+                    self.difficulty = 1
             if button_2.collidepoint((mx, my)):  # level 2
                 if self.click:
-                    if self.click:
-                        self.start_game(self.mode, 2, self.turn)
+                    self.button_clicked = button_2
+                    self.difficulty = 2
             if button_3.collidepoint((mx, my)):  # level 3
                 if self.click:
-                    self.start_game(self.mode, 3, self.turn)
+                    self.button_clicked = button_3
+                    self.difficulty = 3
             if button_4.collidepoint((mx, my)):
                 if self.click:
                     running = False
 
             pygame.draw.rect(self.screen, self.orange, button_4)
             self.draw_text('Back', self.backColor, 90, 770)
+
+            if self.button_clicked is not None and self.difficulty > 0:
+                pygame.draw.rect(self.screen, self.orange, self.button_clicked, 5, border_radius=91)
+                pygame.display.flip()
+                self.start_game(self.mode, self.difficulty, self.turn)
+
             self.handle_events()
             self.update_display()
 
@@ -57,5 +68,6 @@ class LevelsMenu(BaseMenu):
             @param turn: Indicates who starts the game, the player or the computer.
         """
     def start_game(self, mode, difficulty, turn):
+        pygame.time.wait(1000)
         game = GameController.GameController(600, 600, self.board_size, mode, difficulty, None, turn)
         game.run()

@@ -12,14 +12,15 @@ class GameLogic:
     """ Initializes the game logic, including the board size and the starting state of the game.
         @param board_size: Size of the game board (e.g., 8 for a 8x8 board or 6 for a 6x6).
     """
-    def __init__(self, board_size):
+    def __init__(self, board_size, mode):
         self.board_size = board_size
         self.board = None
         self.initialize_board()
         self.turn = 'B'  # Blue player as default
-        self.player = 'human' # Human player as default
-        self.blue_reserved = 0
-        self.red_reserved = 0
+        self.player = 'human'  # Human player as default
+        self.mode = mode
+        self.blue_reserved = 1
+        self.red_reserved = 1
         self.blue_pieces = None
         self.red_pieces = None
 
@@ -29,27 +30,27 @@ class GameLogic:
         if self.board_size == 8:
 
             # 8x8 board
-            # self.board = [
-            #     ['N', 'N', 'X', 'X', 'X', 'X', 'N', 'N'],
-            #     ['N', 'B', 'B', 'R', 'R', 'B', 'B', 'N'],
-            #     ['X', 'R', 'R', 'B', 'B', 'R', 'R', 'X'],
-            #     ['X', 'B', 'B', 'R', 'R', 'B', 'B', 'X'],
-            #     ['X', 'R', 'R', 'B', 'B', 'R', 'R', 'X'],
-            #     ['X', 'B', 'B', 'R', 'R', 'B', 'B', 'X'],
-            #     ['N', 'R', 'R', 'B', 'B', 'R', 'R', 'N'],
-            #     ['N', 'N', 'X', 'X', 'X', 'X', 'N', 'N']
-            # ]
-
             self.board = [
                 ['N', 'N', 'X', 'X', 'X', 'X', 'N', 'N'],
-                ['N', 'X', 'R', 'X', 'B', 'X', 'X', 'N'],
-                ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
-                ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
-                ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
-                ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
-                ['N', 'X', 'X', 'X', 'X', 'X', 'X', 'N'],
+                ['N', 'B', 'B', 'R', 'R', 'B', 'B', 'N'],
+                ['X', 'R', 'R', 'B', 'B', 'R', 'R', 'X'],
+                ['X', 'B', 'B', 'R', 'R', 'B', 'B', 'X'],
+                ['X', 'R', 'R', 'B', 'B', 'R', 'R', 'X'],
+                ['X', 'B', 'B', 'R', 'R', 'B', 'B', 'X'],
+                ['N', 'R', 'R', 'B', 'B', 'R', 'R', 'N'],
                 ['N', 'N', 'X', 'X', 'X', 'X', 'N', 'N']
             ]
+
+            # self.board = [
+            #     ['N', 'N', 'X', 'X', 'X', 'X', 'N', 'N'],
+            #     ['N', 'X', 'R', 'X', 'B', 'X', 'X', 'N'],
+            #     ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
+            #     ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
+            #     ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
+            #     ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
+            #     ['N', 'X', 'X', 'X', 'X', 'X', 'X', 'N'],
+            #     ['N', 'N', 'X', 'X', 'X', 'X', 'N', 'N']
+            # ]
         elif self.board_size == 6:
 
             # 6X6 board
@@ -68,7 +69,7 @@ class GameLogic:
         @return: A new instance of GameLogic representing the current game state.
     """
     def copy(self):
-        new_board = GameLogic(self.board_size)
+        new_board = GameLogic(self.board_size, self.mode)
         new_board.board = [row.copy() for row in self.board]
         new_board.turn = self.turn
         new_board.blue_reserved = self.blue_reserved
@@ -248,7 +249,12 @@ class GameLogic:
     """
     def switch_turns(self):
         self.turn = 'B' if self.turn == 'R' else 'R'  # Switch turns between Blue and Red
-        self.player = 'human' if self.player == 'computer' else 'computer'  # Switch player between human and computer
+        if self.mode == 1:
+            self.player = 'human'
+        elif self.mode == 3:
+            self.player = 'computer'
+        else:
+            self.player = 'human' if self.player == 'computer' else 'computer'  # Switch player between human and computer
 
     """ Highlights potential moves and performs a move for the computer player.
         @param from_pos: The starting position of the move, or None for a reserved move.

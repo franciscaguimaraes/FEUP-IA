@@ -22,8 +22,11 @@ class GameController:
         self.width, self.height = width, height
         self.mode, self.difficulty1, self.difficulty2 = mode, difficulty1, difficulty2
         self.board_size = board_size
-        self.game_logic = GameLogic(self.board_size)
+        self.game_logic = GameLogic(self.board_size, mode)
         self.game_view = GameView(self.game_logic, self.width, self.height)
+        self.game_view.mode = mode
+        self.game_view.difficulty1 = difficulty1
+        self.game_view.difficulty2 = difficulty2
         self.clock = pygame.time.Clock()
         self.running = True
         self.game_ended = False
@@ -52,11 +55,14 @@ class GameController:
         @return: True if the reserved button is clicked, False otherwise.
     """
     def check_reserved_button(self, mouse_pos):
-        if hasattr(self.game_view, 'button_rect') and self.game_view.button_rect.collidepoint(mouse_pos):
-            if (self.game_logic.turn == 'B' and self.game_logic.blue_reserved > 0) or (
-                    self.game_logic.turn == 'R' and self.game_logic.red_reserved > 0):
-                self.placing_reserved = True
-            return True
+        if self.game_logic.player == 'computer':
+            return False
+        elif self.game_logic.player == 'human':
+            if hasattr(self.game_view, 'button_rect') and self.game_view.button_rect.collidepoint(mouse_pos):
+                if (self.game_logic.turn == 'B' and self.game_logic.blue_reserved > 0) or (
+                        self.game_logic.turn == 'R' and self.game_logic.red_reserved > 0):
+                    self.placing_reserved = True
+                return True
         return False
 
     """ Handles all events captured by pygame, such as quitting the game or mouse clicks.
@@ -85,6 +91,9 @@ class GameController:
                 self.game_view.draw_everything(self.valid_moves, self.selected_piece, self.placing_reserved)
                 pygame.display.flip()
         else:
+            # if clicked out of bounds or on an invalid piece, do nothing
+            if row is None or col is None:
+                return
             self.handle_piece_selection_or_movement(row, col)
             self.game_view.draw_everything(self.valid_moves, self.selected_piece, self.placing_reserved)
             pygame.display.flip()
@@ -129,9 +138,6 @@ class GameController:
                 self.selected_piece = None
                 self.valid_moves = []
         else:
-            # if clicked out of bounds or on an invalid piece, do nothing
-            if row is None or col is None:
-                return
             # Select a piece if it's the current player's turn and the piece belongs to them
             if (self.game_logic.board[row][col] != 'N' and
                     self.game_logic.board[row][col] != 'X' and
