@@ -5,10 +5,10 @@ from src import GameController
 
 class PieceColorMenu(BaseMenu):
     """ Initializes the piece color selection menu with a background image and settings for the game's piece color selection menu.
-            @param screen: The main game screen or surface where the menu will be drawn.
-            @param screen_width: The width of the screen in pixels.
-            @param screen_height: The height of the screen in pixels.
-        """
+        @param screen: The main game screen or surface where the menu will be drawn.
+        @param screen_width: The width of the screen in pixels.
+        @param screen_height: The height of the screen in pixels.
+    """
 
     def __init__(self, screen, screen_width, screen_height, board_size):
         super().__init__(screen, screen_width, screen_height, './imgs/selectColorMenu.png')
@@ -19,7 +19,7 @@ class PieceColorMenu(BaseMenu):
         self.color_chosen = None
 
     """ Runs the piece color selection menu, displaying the menu options and handling user interactions.
-        """
+    """
 
     def run(self):
         running = True

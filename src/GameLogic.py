@@ -346,14 +346,52 @@ class GameLogic:
                     else:
                         print("No valid moves available")
 
-        elif difficulty == 3:  # Hard - Minimax
+        elif difficulty == 3:  # Hard - Minimax com depth=2
 
             print("Computer is moving - HARD")
 
-            # minimax_algorithm = Minimax(depth=3, player=self.turn)  # Adjust depth
+            # minimax_algorithm = Minimax(depth=2, player=self.turn)  # Adjust depth
             # best_move = minimax_algorithm.find_best_move(self)
 
-            minimax_algorithm = MinimaxWithAlphaBeta(depth=3, player=self.turn)
+            minimax_algorithm = MinimaxWithAlphaBeta(depth=2, player=self.turn)
+            best_move = minimax_algorithm.find_best_move(self)
+
+            if best_move:
+                from_row, from_col, to_row, to_col = best_move
+                self.highlight_and_move_computer((from_row, from_col), (to_row, to_col), is_reserved=False,
+                                                 game_view=game_view)
+            else:
+                if self.turn == 'R' and self.red_reserved > 0:
+
+                    # Choose higher stack controlled by opponent
+                    max_stack_pos = self.get_maxstack_opponent_pos(self.turn)
+
+                    if max_stack_pos:
+                        to_row, to_col = max_stack_pos
+
+                        self.highlight_and_move_computer(None, (to_row, to_col), is_reserved=True, game_view=game_view)
+                        pygame.display.flip()
+                    else:
+                        print("No valid moves available")
+
+                elif self.turn == 'B' and self.blue_reserved > 0:
+
+                    # Choose higher stack controlled by opponent
+                    max_stack_pos = self.get_maxstack_opponent_pos(self.turn)
+
+                    if max_stack_pos:
+                        to_row, to_col = max_stack_pos
+
+                        self.highlight_and_move_computer(None, (to_row, to_col), is_reserved=True, game_view=game_view)
+                        pygame.display.flip()
+                    else:
+                        print("No valid moves available")
+
+        elif difficulty == 4:  # Expert - Minimax depth=6
+
+            print("Computer is moving - Expert")
+
+            minimax_algorithm = MinimaxWithAlphaBeta(depth=5, player=self.turn)
             best_move = minimax_algorithm.find_best_move(self)
 
             if best_move:

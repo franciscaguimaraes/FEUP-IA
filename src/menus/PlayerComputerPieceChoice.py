@@ -3,13 +3,14 @@ from .BaseMenu import BaseMenu
 from src import GameController
 from .LevelsMenu import LevelsMenu
 
-class PlayerComputerPieceChoice(BaseMenu):
 
+class PlayerComputerPieceChoice(BaseMenu):
     """ Initializes the player and computer piece color choice menu with a background image and settings.
-            @param screen: The main game screen or surface where the menu will be drawn.
-            @param screen_width: The width of the screen in pixels.
-            @param screen_height: The height of the screen in pixels.
-        """
+        @param screen: The main game screen or surface where the menu will be drawn.
+        @param screen_width: The width of the screen in pixels.
+        @param screen_height: The height of the screen in pixels.
+    """
+
     def __init__(self, screen, screen_width, screen_height, board_size):
         super().__init__(screen, screen_width, screen_height, './imgs/selectColorMenu.png')
         self.board_size = board_size
@@ -19,7 +20,8 @@ class PlayerComputerPieceChoice(BaseMenu):
         self.color_chosen = None
 
     """ Runs the piece color choice menu, displaying the menu options and handling user interactions.
-        """
+    """
+
     def run(self):
         running = True
         while running:
@@ -60,7 +62,8 @@ class PlayerComputerPieceChoice(BaseMenu):
 
                 # wait half a second before moving to the next menu
                 pygame.time.wait(200)
-                levels_menu = LevelsMenu(self.screen, self.screen_width, self.screen_height, 2, self.color_chosen, self.board_size)
+                levels_menu = LevelsMenu(self.screen, self.screen_width, self.screen_height, 2, self.color_chosen,
+                                         self.board_size)
                 levels_menu.run()
 
                 self.button_clicked = None

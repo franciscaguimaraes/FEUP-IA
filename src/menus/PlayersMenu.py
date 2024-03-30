@@ -4,14 +4,14 @@ from .ComputerLevelsMenu import ComputerLevelsMenu
 from .PieceColorMenu import PieceColorMenu
 from .PlayerComputerPieceChoice import PlayerComputerPieceChoice
 
-"""
-    Initializes the player menu with game settings and background.
-    @param screen: The main game screen or surface where the menu will be drawn.
-    @param screen_width: The width of the screen in pixels.
-    @param screen_height: The height of the screen in pixels.
-    @param board_size: The size of the game board, determining the number of rows and columns.
-"""
+
 class PlayersMenu(BaseMenu):
+    """ Initializes the player menu with game settings and background.
+        @param screen: The main game screen or surface where the menu will be drawn.
+        @param screen_width: The width of the screen in pixels.
+        @param screen_height: The height of the screen in pixels.
+        @param board_size: The size of the game board, determining the number of rows and columns.
+    """
     def __init__(self, screen, screen_width, screen_height, board_size):
         super().__init__(screen, screen_width, screen_height, './imgs/playersMenu.png')
         self.board_size = board_size
@@ -23,10 +23,10 @@ class PlayersMenu(BaseMenu):
             self.screen.blit(self.background_image, (0, 0))
             mx, my = pygame.mouse.get_pos()
 
-            button_1 = pygame.Rect(490, 265, 350, 50)  # posx, posy, largura, altura
-            button_2 = pygame.Rect(490, 385, 350, 50)
-            button_3 = pygame.Rect(490, 505, 350, 50)
-            button_4 = pygame.Rect(70, 760, 350, 50)
+            button_1 = pygame.Rect(450, 280, 355, 85)  # posx, posy, largura, altura
+            button_2 = pygame.Rect(450, 426, 355, 85)
+            button_3 = pygame.Rect(450, 576, 355, 85)
+            button_4 = pygame.Rect(70, 760, 250, 50)
 
             if button_1.collidepoint((mx, my)):  # player vs player
                 if self.click:
@@ -49,14 +49,7 @@ class PlayersMenu(BaseMenu):
                 if self.click:
                     running = False
 
-            pygame.draw.rect(self.screen, self.backColor, button_1)
-            pygame.draw.rect(self.screen, self.backColor, button_2)
-            pygame.draw.rect(self.screen, self.backColor, button_3)
             pygame.draw.rect(self.screen, self.orange, button_4)
-
-            self.draw_text('Player vs Player', self.orange, 500, 280)
-            self.draw_text('Player vs Computer', self.orange, 500, 400)
-            self.draw_text('Computer vs Computer', self.orange, 500, 520)
             self.draw_text('Back', self.backColor, 90, 770)
 
             self.handle_events()

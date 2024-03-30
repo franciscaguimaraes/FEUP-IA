@@ -2,7 +2,6 @@
 import pygame
 from .BaseMenu import BaseMenu
 
-
 class InstructionsMenu(BaseMenu):
 
     """ Initializes the instructions menu with a background image displaying the game's instructions.

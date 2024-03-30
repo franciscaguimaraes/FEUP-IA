@@ -1,5 +1,5 @@
 # mode: 1 - Player vs Player, 2 - Player vs Computer, 3 - Computer vs Computer
-# difficulty: 1 - Easy, 2 - Medium, 3 - Hard
+# difficulty: 1 - Easy, 2 - Medium, 3 - Hard, 4 - Expert
 import sys
 
 import pygame
