@@ -18,7 +18,7 @@ class GameLogic:
         self.player = 'human'  # Human player as default
         self.mode = mode
         self.blue_reserved = 0
-        self.red_reserved = 1
+        self.red_reserved = 0
         self.blue_pieces = None
         self.red_pieces = None
 
@@ -212,7 +212,7 @@ class GameLogic:
     """ Checks if the game has a winner based on the current state of the board.
         @return: 'B' or 'R' if there's a winner, or None if the game is still ongoing.
     """
-    def check_winner(self):
+    def check_winner(self, mcts=False):
 
         top_pieces = {'B': False, 'R': False}  # Track presence of top pieces for both players
         can_move = {'B': False, 'R': False}  # Track if the player can move any pieces
@@ -234,15 +234,14 @@ class GameLogic:
         has_reserved = {'B': self.blue_reserved > 0, 'R': self.red_reserved > 0}
 
         if top_pieces['B'] and not top_pieces['R']:  # If only blue pieces are on top and no red pieces
+            if mcts:  # don't count reserved for winning condition
+                return 'B' if not can_move['R'] else None
             return 'B' if not has_reserved['R'] and not can_move['R'] else None
-        elif top_pieces['R'] and not top_pieces['B']:  # If only red pieces are on top and no blue pieces
+        elif top_pieces['R'] and not top_pieces['B']:
+            if mcts:
+                return 'R' if not can_move['B'] else None
             return 'R' if not has_reserved['B'] and not can_move['B'] else None
-        else:
-            if not can_move['B'] and not has_reserved['B'] and top_pieces['R'] and not top_pieces['B']:
-                return 'R'
-            elif not can_move['R'] and not has_reserved['R'] and top_pieces['B'] and not top_pieces['R']:
-                return 'B'
-            return None
+        return None
 
     """ Switches the turn from one player to the other.
     """
@@ -299,25 +298,25 @@ class GameLogic:
         else:
             difficulty = None
 
-        if difficulty == 1:  # Easy - random
+        # if difficulty == 0:  # Easy - random
+        #
+        #     print("Computer is moving - EASY")
+        #
+        #     valid_moves = self.get_valid_moves_for_player(self.turn)
+        #
+        #     if valid_moves:
+        #         from_row, from_col, to_row, to_col = random.choice(valid_moves)
+        #         self.highlight_and_move_computer((from_row, from_col), (to_row, to_col), is_reserved=False,
+        #                                          game_view=game_view)
+        #     elif self.red_reserved > 0:
+        #         to_row, to_col = random.choice(
+        #             [(i, j) for i in range(self.board_size) for j in range(self.board_size) if
+        #              self.board[i][j] != 'N'])
+        #         self.highlight_and_move_computer(None, (to_row, to_col), is_reserved=True, game_view=game_view)
+        #     else:
+        #         print("No valid moves available")
 
-            print("Computer is moving - EASY")
-
-            valid_moves = self.get_valid_moves_for_player(self.turn)
-
-            if valid_moves:
-                from_row, from_col, to_row, to_col = random.choice(valid_moves)
-                self.highlight_and_move_computer((from_row, from_col), (to_row, to_col), is_reserved=False,
-                                                 game_view=game_view)
-            elif self.red_reserved > 0:
-                to_row, to_col = random.choice(
-                    [(i, j) for i in range(self.board_size) for j in range(self.board_size) if
-                     self.board[i][j] != 'N'])
-                self.highlight_and_move_computer(None, (to_row, to_col), is_reserved=True, game_view=game_view)
-            else:
-                print("No valid moves available")
-
-        elif difficulty == 2:  # Medium - MCTS
+        if difficulty == 1:  # Medium - MCTS
 
             print("Computer is moving - MEDIUM")
 
@@ -392,19 +391,18 @@ class GameLogic:
                     else:
                         print("No valid moves available")
 
-
     """ Checks if the game is over (i.e, a winner exists).
         @return: True if the game is over, False otherwise.
     """
-    def check_gameover(self):
-        return self.check_winner() is not None  # Game is over if there's a winner
+    def check_gameover(self, mcts=False):
+        return self.check_winner(mcts) is not None  # Game is over if there's a winner
 
     """ Determines the game result from the perspective of a specific player.
         @param player: The player ('B' or 'R') to check the result for.
         @return: 1 for a win, -1 for a loss, 0 for an ongoing game.
     """
     def get_result(self, player):
-        winner = self.check_winner()  # Check the winner
+        winner = self.check_winner(mcts=True)  # Check the winner
         if winner == player:  # If the winner is the player
             return 1  # Win
         elif winner is None:
@@ -412,10 +410,9 @@ class GameLogic:
         else:
             return -1  # Loss
 
-    """ Determines the position of the opponent's stack with the maximum length. If multiple stacks have the same length,
-        a random position is chosen.
-        @param player: The player ('B' or 'R') to find the opponent's stack for.
-        @return: The position (row, col) of the opponent's stack with the maximum length.
+    """Determines the position of the opponent's stack with the maximum length. If multiple stacks have the same 
+    length, a random position is chosen. @param player: The player ('B' or 'R') to find the opponent's stack for. 
+    @return: The position (row, col) of the opponent's stack with the maximum length.
     """
     def get_maxstack_opponent_pos(self, player):
         max_stack = 0
