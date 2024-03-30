@@ -122,8 +122,8 @@ class GameView:
             self.difficulty2 = 'Medium'
         elif self.difficulty2 == 3:
             self.difficulty2 = 'Hard'
-        elif self.difficulty1 == 4:
-            self.difficulty1 = 'Expert'
+        elif self.difficulty2 == 4:
+            self.difficulty2 = 'Expert'
 
         if self.mode == 1:
             self.draw_text('Mode: Player vs Player', small_font, self.BLACK, self.width + 20, 530)
