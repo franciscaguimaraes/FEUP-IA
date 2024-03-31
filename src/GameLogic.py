@@ -316,7 +316,7 @@ class GameLogic:
         #     else:
         #         print("No valid moves available")
 
-        if difficulty == 1:  # Medium - MCTS
+        if difficulty == 1:  # Easy - MCTS
 
             print("Computer is moving - MEDIUM")
 
@@ -345,19 +345,19 @@ class GameLogic:
                     else:
                         print("No valid moves available")
 
-        elif difficulty == 3 or difficulty == 4:  # Hard - Minimax com depth=2
+        elif difficulty == 2 or difficulty == 3 or difficulty == 4:
 
-            if difficulty == 3:
-                print("Computer is moving - HARD")
+            if difficulty == 2:
+                print("Computer is moving - Medium")
                 depth = 2
-            else:
+            elif difficulty == 3:
+                print("Computer is moving - Hard")
+                depth = 2
+            elif difficulty == 4:
                 print("Computer is moving - EXPERT")
-                depth = 5
+                depth = 3
 
-            # minimax_algorithm = Minimax(depth=2, player=self.turn)  # Adjust depth
-            # best_move = minimax_algorithm.find_best_move(self)
-
-            minimax_algorithm = MinimaxWithAlphaBeta(depth, player=self.turn)
+            minimax_algorithm = MinimaxWithAlphaBeta(depth, player=self.turn, game_level=difficulty)
             best_move = minimax_algorithm.find_best_move(self)
 
             if best_move:
