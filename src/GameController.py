@@ -217,7 +217,6 @@ class GameController:
     """
     def render(self):
         if self.game_ended:
-            # Ensure window size is restored if the game ends and a hint was displayed.
             if self.hint_displayed:
                 self.game_view.restore_window_size()
                 self.hint_displayed = False
