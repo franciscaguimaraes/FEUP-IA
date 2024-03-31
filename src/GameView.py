@@ -1,5 +1,3 @@
-import random
-
 import pygame
 
 
@@ -9,7 +7,6 @@ class GameView:
         @param width: The width of the game board in pixels.
         @param height: The height of the game board in pixels.
     """
-
     def __init__(self, game_logic, width, height):
         self.game_logic = game_logic
         self.mode = None
@@ -28,6 +25,7 @@ class GameView:
         self.GREEN = (0, 255, 0)
         self.YELLOW = (255, 190, 2)
         self.font = pygame.font.Font(None, 36)
+        self.small_font = pygame.font.Font(None, 23)
         self.menu_width = 300
         self.button_rect = pygame.Rect(0, 0, 0, 0)
         self.total_width = width + self.menu_width
@@ -36,7 +34,6 @@ class GameView:
     """ Draws the game board based on the current state of the game logic.
         Each cell of the board is drawn, and the colors of cells are updated according to their state. 
     """
-
     def draw_board(self):
         self.screen.fill(self.GRAY)
         board_size = self.game_logic.board_size
@@ -63,7 +60,6 @@ class GameView:
     """ Draws the pieces on the board according to their positions in the game logic.
         Different colors represent different player pieces, and the pieces are stacked within the cells.
     """
-
     def draw_pieces(self):
         board = self.game_logic.board
         cell_size = self.width // len(board[0])
@@ -88,7 +84,6 @@ class GameView:
     """Draws the side menu next to the game board. This menu includes game information such as the current player's 
     turn, the number of pieces in play, and buttons for game actions like playing a reserved piece.
     """
-
     def draw_side_menu(self):
         pygame.draw.rect(self.screen, self.WHITE, (self.width, 0, self.menu_width, self.height))
         self.draw_text('Focus Game', self.font, self.BLACK, self.width + 70, 20)
@@ -103,9 +98,6 @@ class GameView:
         self.draw_text(str(self.game_logic.blue_reserved), self.font, self.BLUE, self.width + 100, 330)
         self.draw_text(str(self.game_logic.red_reserved), self.font, self.RED, self.width + 180, 330)
         self.draw_reserved_button()
-        # self.display_hint()
-
-        small_font = pygame.font.Font(None, 23)  # smaller size
 
         if self.difficulty1 == 1:
             self.difficulty1 = 'Easy'
@@ -126,14 +118,14 @@ class GameView:
             self.difficulty2 = 'Expert'
 
         if self.mode == 1:
-            self.draw_text('Mode: Player vs Player', small_font, self.BLACK, self.width + 20, 530)
+            self.draw_text('Mode: Player vs Player', self.small_font, self.BLACK, self.width + 20, 530)
         elif self.mode == 2:
-            self.draw_text('Mode: Player vs Computer', small_font, self.BLACK, self.width + 20, 530)
-            self.draw_text(f'Difficulty: {self.difficulty1}', small_font, self.BLACK, self.width + 20, 560)
+            self.draw_text('Mode: Player vs Computer', self.small_font, self.BLACK, self.width + 20, 530)
+            self.draw_text(f'Difficulty: {self.difficulty1}', self.small_font, self.BLACK, self.width + 20, 560)
         elif self.mode == 3:
-            self.draw_text('Mode: Computer vs Computer', small_font, self.BLACK, self.width + 20, 500)
-            self.draw_text(f'Difficulty Computer Blue: {self.difficulty1}', small_font, self.BLACK, self.width + 20, 530)
-            self.draw_text(f'Difficulty Computer Red: {self.difficulty2}', small_font, self.BLACK, self.width + 20, 550)
+            self.draw_text('Mode: Computer vs Computer', self.small_font, self.BLACK, self.width + 20, 500)
+            self.draw_text(f'Difficulty Computer Blue: {self.difficulty1}', self.small_font, self.BLACK, self.width + 20, 530)
+            self.draw_text(f'Difficulty Computer Red: {self.difficulty2}', self.small_font, self.BLACK, self.width + 20, 550)
 
     """ Draws text into the game screen.
         @param text: The text string to display.
@@ -142,7 +134,6 @@ class GameView:
         @param x: The x-coordinate of the top-left corner of the text.
         @param y: The y-coordinate of the top-left corner of the text.
     """
-
     def draw_text(self, text, font, color, x, y):
         text = font.render(text, 1, color)
         textrect = text.get_rect()
@@ -152,7 +143,6 @@ class GameView:
     """ Draws the button for playing a reserved piece if the current player has any reserved pieces available.
         This button is only interactive and visible if the conditions are met.
     """
-
     def draw_reserved_button(self):
         if (self.game_logic.turn == 'B' and self.game_logic.blue_reserved > 0) or (self.game_logic.turn == 'R'
                                                                                    and self.game_logic.red_reserved > 0):
@@ -172,18 +162,13 @@ class GameView:
         @param winner: A string indicating the winner ('B' for Blue, 'R' for Red).
     """
     def display_winner(self, winner):
-        # Select the correct image path based on the winner
         if winner == 'B':
             winner_image_path = 'imgs/winner_blue.png'
         else:
             winner_image_path = 'imgs/winner_red.png'
         try:
             winner_image = pygame.image.load(winner_image_path)
-            # Scale the image to fit the screen
-            # Here, we use self.total_width because it accounts for the side menu width as well
             winner_image = pygame.transform.scale(winner_image, (self.total_width, self.height))
-
-            # Since the image now exactly matches the screen dimensions, start drawing from the top-left corner
             self.screen.blit(winner_image, (0, 0))
         except pygame.error as e:
             print(f"Error loading the winner image: {e}")
@@ -215,8 +200,9 @@ class GameView:
         @param valid_moves: Optional. A list of valid moves if a piece is selected.
         @param selected_piece: Optional. Indicates if a piece is currently selected.
         @param placing_reserved: Optional. Indicates if placing a reserved piece is the current action.
+        @param hint: Optional. A hint string to display at the bottom of the screen.
     """
-    def draw_everything(self, valid_moves=None, selected_piece=None, placing_reserved=False):
+    def draw_everything(self, valid_moves=None, selected_piece=None, placing_reserved=False, hint=None):
         self.screen.fill(self.BLACK)
         self.draw_board()
         self.draw_pieces()
@@ -230,20 +216,55 @@ class GameView:
                                   for j in range(self.game_logic.board_size)
                                   if self.game_logic.board[i][j] != 'N'], reserved=True)
 
+        if hint:
+            self.display_hint(hint)
+
         pygame.display.flip()  # Update the screen with everything drawn
 
-    """ Optionally prints a hint to the console. This feature is not directly related to the game's GUI.
-        @param display_hint: A boolean flag to control the display of the hint. If True, a hint is printed to the console.
+    """ Wrap text to fit within a specified width.
+    @param text: The text to wrap.
+    @param font: The font to use for rendering the text.
+    @param max_width: The maximum width of the text.
     """
-    def display_hint(self, display_hint=False):
-        if display_hint:
-            print("Displaying hint")
+    def wrap_text(self, text, font, max_width):
+        words = text.split(' ')
+        lines = []
+        current_line = ''
 
-            hints = [
-                "As the game nears its end, consider gathering reserve pieces. These are valuable and can lead to a win.",
-                "Watch for stacks five pieces high under your opponent's control, with one of your pieces at the bottom. Adding one of your pieces on top lets you control the stack and earn a reserve piece.",
-                "At the start of the game, aim to create many stacks that are two pieces high. Position these stacks two spaces apart in rows that meet, so you can easily combine them into a larger stack under your control.",
-                "Avoid moving next to two or three of your opponent's single pieces. These are a threat because they're only one move away from taking over a stack."
-            ]
+        for word in words:
+            test_line = current_line + word + ' '
+            if font.size(test_line)[0] <= max_width:
+                current_line = test_line
+            else:
+                lines.append(current_line)
+                current_line = word + ' '
+        if current_line:
+            lines.append(current_line)
+        return lines
 
-            hint = random.choice(hints)
+    """ Display a hint text at the bottom of the window.
+    @param hint: The hint text to display.
+    """
+    def display_hint(self, hint):
+        if hint:
+            hint_lines = self.wrap_text(hint, self.small_font, self.total_width)  # Wrap the hint text.
+            line_height = self.font.get_height()  # Height of one line of text.
+            hint_y_position = self.height  # Position bellow the window's bottom edge.
+
+            # Draw the background rectangle for the hint.
+            pygame.draw.rect(self.screen, self.YELLOW, (0, hint_y_position, self.total_width, 50))
+
+            # Draw each line of the wrapped hint text.
+            for i, line in enumerate(hint_lines):
+                self.draw_text(line.strip(), self.small_font, self.BLACK, 15, hint_y_position + i * line_height + 5)
+
+    """ Resize the window to make space for hint display.
+    @param hint_height: The height of the hint text to display.
+    """
+    def resize_window_for_hint(self, hint_height):
+        self.screen = pygame.display.set_mode((self.total_width, self.height + hint_height))
+
+    """ Restore the original window size.
+    """
+    def restore_window_size(self):
+        self.screen = pygame.display.set_mode((self.total_width, self.height))

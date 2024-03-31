@@ -1,6 +1,8 @@
 # mode: 1 - Player vs Player, 2 - Player vs Computer, 3 - Computer vs Computer
 # difficulty: 1 - Easy, 2 - Medium, 3 - Hard, 4 - Expert
+import random
 import sys
+import time
 
 import pygame
 from GameLogic import GameLogic
@@ -17,7 +19,6 @@ class GameController:
         @param difficulty2: The difficulty level for the second player (in CvC mode).
         @param turn: The starting player ('B' for Blue, 'R' for Red).
     """
-
     def __init__(self, width, height, board_size=8, mode=None, difficulty1=None, difficulty2=None, turn='B'):
         self.width, self.height = width, height
         self.mode, self.difficulty1, self.difficulty2 = mode, difficulty1, difficulty2
@@ -34,13 +35,34 @@ class GameController:
         self.selected_piece = None
         self.placing_reserved = False
         self.winner = None
-        self.last_move_time = None
-        self.game_logic.turn = turn  # Set the starting player color, human player always starts
+        self.last_move_time = time.time()
+        self.display_hint = False
+        self.current_hint = None
+        self.hint_displayed = False
+        self.game_logic.turn = turn
 
-    """ The main loop of the game. Handles game updates, event handling, and rendering until the game ends.
+    """ Starts the game loop, handling game logic and rendering the game view.
     """
     def run(self):
         while self.running:
+            current_time = time.time()
+            if self.mode in [1, 2] and self.game_logic.player == 'human' and (current_time - self.last_move_time) >= 1:
+                if not self.current_hint:
+                    self.select_hint()
+                    if not self.hint_displayed:  # Resize if hint not already displayed.
+                        self.game_view.resize_window_for_hint(50)
+                        self.hint_displayed = True
+                self.display_hint = True
+                self.game_view.display_hint(self.current_hint)
+            else:
+                if self.hint_displayed:  # Restore
+                    self.game_view.restore_window_size()
+                    self.hint_displayed = False
+                self.display_hint = False
+
+            pygame.display.flip()
+            self.render()
+            pygame.display.flip()
             self.game_logic.count_pieces()
             self.handle_events()
             self.update_game_state()
@@ -90,6 +112,9 @@ class GameController:
             if success:
                 self.game_view.draw_everything(self.valid_moves, self.selected_piece, self.placing_reserved)
                 pygame.display.flip()
+                self.current_hint = None
+                self.last_move_time = time.time()
+                self.hint_displayed = True
         else:
             # if clicked out of bounds or on an invalid piece, do nothing
             if row is None or col is None:
@@ -127,6 +152,9 @@ class GameController:
                 self.game_logic.move_stack(self.selected_piece, (row, col))
                 self.selected_piece = None  # Deselect piece after moving
                 self.valid_moves = []
+                self.current_hint = None
+                self.last_move_time = time.time()
+                self.hint_displayed = True
 
                 winner = self.game_logic.check_winner()
                 if winner:
@@ -145,12 +173,19 @@ class GameController:
                 self.selected_piece = (row, col)
                 self.valid_moves = self.game_logic.get_valid_moves_for_position(row, col)
 
-    """ Updates the game state, including checking for and handling computer moves in PvC or CvC modes.
+    """  Updates the game state, including checking for a winner and handling computer moves.
     """
     def update_game_state(self):
+
+        if self.hint_displayed and self.game_logic.player == 'computer':  # Ensure hint is hidden when computer moves.
+            self.current_hint = None
+            self.hint_displayed = False
+            self.game_view.restore_window_size()
+
         if self.mode == 2 and self.game_logic.player == 'computer':
             self.game_view.draw_everything(self.valid_moves, self.selected_piece, self.placing_reserved)
             self.handle_computer_move()
+            self.last_move_time = time.time() # Reset timer after computer move
 
         elif self.mode == 3:
             self.game_view.draw_everything(self.valid_moves, self.selected_piece, self.placing_reserved)
@@ -178,15 +213,33 @@ class GameController:
         if self.winner:
             self.game_ended = True
 
-    """ Renders the current state of the game to the display.
+    """ Renders the game view, including displaying the winner if the game has ended.
     """
     def render(self):
-        self.game_view.draw_everything(self.valid_moves, self.selected_piece, self.placing_reserved)
-
         if self.game_ended:
+            # Ensure window size is restored if the game ends and a hint was displayed.
+            if self.hint_displayed:
+                self.game_view.restore_window_size()
+                self.hint_displayed = False
+
             self.game_view.display_winner(self.winner)
-            pygame.time.delay(5000)  # Delay before closing
+            pygame.time.delay(3000)
             self.running = False
+        else:
+            if self.game_logic.player == 'computer':
+                self.game_view.restore_window_size()
+                self.hint_displayed = False
+
+            hint_to_display = self.current_hint if self.display_hint else None
+            if self.display_hint and not self.hint_displayed:
+                self.game_view.resize_window_for_hint(50)  # Adjust for the hint height.
+                self.hint_displayed = True
+            elif not self.display_hint and self.hint_displayed:
+                self.game_view.restore_window_size()
+                self.hint_displayed = False
+
+            self.game_view.draw_everything(self.valid_moves, self.selected_piece, self.placing_reserved,
+                                           hint_to_display)
 
         pygame.display.flip()
 
@@ -205,8 +258,22 @@ class GameController:
         else:
             return None, None
 
+    """ Selects a hint to display to the player.
+    """
+    def select_hint(self):
+        hints = [
+            "As the game nears its end, consider gathering reserve pieces. These are valuable and can lead to a win.",
+            "Watch for stacks five pieces high under your opponent's control, with one of your pieces at the bottom. Adding one of your pieces on top lets you control the stack and earn a reserve piece.",
+            "At the start of the game, aim to create many stacks that are two pieces high. Position these stacks two spaces apart in rows that meet, so you can easily combine them into a larger stack under your control.",
+            "Avoid moving next to two or three of your opponent's single pieces. These are a threat because they're only one move away from taking over a stack."
+        ]
+
+        self.current_hint = random.choice(hints)
+
     """ Cleans up resources and exits the game.
     """
     def cleanup(self):
+        if self.hint_displayed:
+            self.game_view.restore_window_size()
         pygame.quit()
         sys.exit()
