@@ -17,7 +17,7 @@ class GameLogic:
         self.turn = 'B'  # Blue player as default
         self.player = 'human'  # Human player as default
         self.mode = mode
-        self.blue_reserved = 0
+        self.blue_reserved = 1
         self.red_reserved = 0
         self.blue_pieces = None
         self.red_pieces = None
@@ -52,12 +52,21 @@ class GameLogic:
         elif self.board_size == 6:
 
             # 6X6 board
+            # self.board = [
+            #     ['N', 'N', 'X', 'X', 'N', 'N'],
+            #     ['N', 'R', 'R', 'B', 'B', 'N'],
+            #     ['X', 'B', 'B', 'R', 'R', 'X'],
+            #     ['X', 'R', 'R', 'B', 'B', 'X'],
+            #     ['N', 'B', 'B', 'R', 'R', 'N'],
+            #     ['N', 'N', 'X', 'X', 'N', 'N']
+            # ]
+
             self.board = [
                 ['N', 'N', 'X', 'X', 'N', 'N'],
-                ['N', 'R', 'R', 'B', 'B', 'N'],
-                ['X', 'B', 'B', 'R', 'R', 'X'],
-                ['X', 'R', 'R', 'B', 'B', 'X'],
-                ['N', 'B', 'B', 'R', 'R', 'N'],
+                ['N', 'B', 'R', 'X', 'X', 'N'],
+                ['X', 'X', 'X', 'X', 'X', 'X'],
+                ['X', 'X', 'X', 'X', 'X', 'X'],
+                ['N', 'X', 'X', 'X', 'X', 'N'],
                 ['N', 'N', 'X', 'X', 'N', 'N']
             ]
 
@@ -87,6 +96,75 @@ class GameLogic:
                     continue
                 self.blue_pieces += cell.count('B')
                 self.red_pieces += cell.count('R')
+
+    """ 
+        Checks if the game is over (i.e, a winner exists).
+        @return: True if the game is over, False otherwise.
+    """
+    def check_gameover(self, mcts=False):
+        return self.check_winner(mcts) is not None  # Game is over if there's a winner
+
+    """ 
+    Determines the game result from the perspective of a specific player.
+    @param player: The player ('B' or 'R') to check the result for.
+    @return: 1 for a win, -1 for a loss, 0 for an ongoing game.
+    """
+    def get_result(self, player):
+        winner = self.check_winner(mcts=True)  # Check the winner
+        if winner == player:  # If the winner is the player
+            return 1  # Win
+        elif winner is None:
+            return 0  # Game not done
+        else:
+            return -1  # Loss
+
+    """ 
+        Checks if the game has a winner based on the current state of the board.
+        @param mcts: Whether the check is being done for MCTS.
+        @return: 'B' or 'R' if there's a winner, or None if the game is still ongoing.
+    """
+    def check_winner(self, mcts=False):
+
+        top_pieces = {'B': False, 'R': False}  # Track presence of top pieces for both players
+        can_move = {'B': False, 'R': False}  # Track if the player can move any pieces
+
+        for row in range(self.board_size):
+            for col in range(self.board_size):
+                stack = self.board[row][col]
+
+                if stack in ['N', 'X'] or not stack:
+                    continue
+
+                top_piece = stack[-1]  # top-most piece of the stack
+                top_pieces[top_piece] = True  # If the top piece is 'B', set top_pieces['B'] to True and vice versa
+
+                # Check if there are valid moves for the piece at this position
+                if self.get_valid_moves_for_position(row, col):
+                    can_move[top_piece] = True
+
+        has_reserved = {'B': self.blue_reserved > 0, 'R': self.red_reserved > 0}
+
+        if top_pieces['B'] and not top_pieces['R']:  # If only blue pieces are on top and no red pieces
+            if mcts:  # don't count reserved for winning condition
+                return 'B' if not can_move['R'] else None
+            return 'B' if not has_reserved['R'] and not can_move['R'] else None
+        elif top_pieces['R'] and not top_pieces['B']:
+            if mcts:
+                return 'R' if not can_move['B'] else None
+            return 'R' if not has_reserved['B'] and not can_move['B'] else None
+        return None
+
+    """ Switches the turn from one player to the other. If the game is in PvC mode, the player is switched between
+        human and computer.
+    """
+    def switch_turns(self):
+        self.turn = 'B' if self.turn == 'R' else 'R'  # Switch turns between Blue and Red
+        if self.mode == 1:
+            self.player = 'human'
+        elif self.mode == 3:
+            self.player = 'computer'
+        else:
+            self.player = 'human' if self.player == 'computer' else 'computer'  # Switch player between human and computer
 
     """ Calculates all valid moves for a piece at a given position on the board.
         @param row: Row of the piece.
@@ -209,50 +287,58 @@ class GameLogic:
         self.update_piece_counts(player, capture_count, reserve_count - 1)  # Subtract one since we're using one reserve
         return True
 
-    """ Checks if the game has a winner based on the current state of the board.
-        @return: 'B' or 'R' if there's a winner, or None if the game is still ongoing.
     """
-    def check_winner(self, mcts=False):
-
-        top_pieces = {'B': False, 'R': False}  # Track presence of top pieces for both players
-        can_move = {'B': False, 'R': False}  # Track if the player can move any pieces
-
-        for row in range(self.board_size):
-            for col in range(self.board_size):
-                stack = self.board[row][col]
-
-                if stack in ['N', 'X'] or not stack:
-                    continue
-
-                top_piece = stack[-1]  # top-most piece of the stack
-                top_pieces[top_piece] = True  # If the top piece is 'B', set top_pieces['B'] to True and vice versa
-
-                # Check if there are valid moves for the piece at this position
-                if self.get_valid_moves_for_position(row, col):
-                    can_move[top_piece] = True
-
-        has_reserved = {'B': self.blue_reserved > 0, 'R': self.red_reserved > 0}
-
-        if top_pieces['B'] and not top_pieces['R']:  # If only blue pieces are on top and no red pieces
-            if mcts:  # don't count reserved for winning condition
-                return 'B' if not can_move['R'] else None
-            return 'B' if not has_reserved['R'] and not can_move['R'] else None
-        elif top_pieces['R'] and not top_pieces['B']:
-            if mcts:
-                return 'R' if not can_move['B'] else None
-            return 'R' if not has_reserved['B'] and not can_move['B'] else None
-        return None
-
-    """ Switches the turn from one player to the other.
+    Determines the position of the opponent's stack with the maximum length. If multiple stacks have the same 
+    length, a random position is chosen. 
+    @param player: The player ('B' or 'R') to find the opponent's stack for. 
+    @return: The position (row, col) of the opponent's stack with the maximum length.
     """
-    def switch_turns(self):
-        self.turn = 'B' if self.turn == 'R' else 'R'  # Switch turns between Blue and Red
-        if self.mode == 1:
-            self.player = 'human'
-        elif self.mode == 3:
-            self.player = 'computer'
-        else:
-            self.player = 'human' if self.player == 'computer' else 'computer'  # Switch player between human and computer
+    def get_maxstack_opponent_pos(self, player):
+        max_stack = 0
+        max_stack_positions = []
+        for i in range(self.board_size):
+            for j in range(self.board_size):
+                stack_length = len(self.board[i][j])
+
+                if self.board[i][j][-1] != player:
+                    if stack_length > max_stack:
+                        max_stack = stack_length
+                        max_stack_positions = [(i, j)]
+                    elif stack_length == max_stack:
+                        max_stack_positions.append((i, j))
+
+        if max_stack_positions:
+            return random.choice(max_stack_positions)
+
+    """
+    Determines the position of the player's stack with the maximum length and moves the reserved piece to the chosen position.
+    If multiple stacks have the same length, a random position is chosen.
+    @param game_view: The game view object.
+    """
+    def computer_reserved_play(self, game_view):
+        if self.turn == 'R' and self.red_reserved > 0:
+            # Choose higher stack controlled by opponent
+            max_stack_pos = self.get_maxstack_opponent_pos(self.turn)
+
+            if max_stack_pos:
+                to_row, to_col = max_stack_pos
+
+                self.highlight_and_move_computer(None, (to_row, to_col), is_reserved=True, game_view=game_view)
+                pygame.display.flip()
+            else:
+                print("No valid moves available")
+        elif self.turn == 'B' and self.blue_reserved > 0:
+
+            # Choose higher stack controlled by opponent
+            max_stack_pos = self.get_maxstack_opponent_pos(self.turn)
+
+            if max_stack_pos:
+                to_row, to_col = max_stack_pos
+
+                self.highlight_and_move_computer(None, (to_row, to_col), is_reserved=True, game_view=game_view)
+                pygame.display.flip()
+            else:
+                print("No valid moves available")
 
     """ Highlights potential moves and performs a move for the computer player.
         @param from_pos: The starting position of the move, or None for a reserved move.
@@ -298,7 +384,7 @@ class GameLogic:
         else:
             difficulty = None
 
-        # if difficulty == 0:  # Easy - random
+        # if difficulty == 1:  # Easy - random
         #
         #     print("Computer is moving - EASY")
         #
@@ -318,7 +404,7 @@ class GameLogic:
 
         if difficulty == 1:  # Easy - MCTS
 
-            print("Computer is moving - MEDIUM")
+            print("Computer is moving - EASY - MCTS")
 
             mcts_tree = MCTS(self, self.turn, 10)
             selected_move = mcts_tree.search()
@@ -328,24 +414,15 @@ class GameLogic:
                 game_view.highlight_moves(valid_positions, reserved=False)
                 pygame.display.flip()
 
-                pygame.time.delay(1000)  # wait 1 second
+                pygame.time.delay(500)  # wait 0.5 second
 
                 self.move_stack((selected_move[0], selected_move[1]), (selected_move[2], selected_move[3]))
-            else:  # If no valid moves are available
-                if self.red_reserved > 0:  # BUT there are reserved pieces
-
-                    # Choose higher stack controlled by opponent
-                    max_stack_pos = self.get_maxstack_opponent_pos(self.turn)
-
-                    if max_stack_pos:
-                        to_row, to_col = max_stack_pos
-
-                        self.highlight_and_move_computer(None, (to_row, to_col), is_reserved=True, game_view=game_view)
-                        pygame.display.flip()
-                    else:
-                        print("No valid moves available")
+            else:
+                self.computer_reserved_play(game_view)  # If no valid moves are available but reserved pieces
 
         elif difficulty == 2 or difficulty == 3 or difficulty == 4:
+
+            depth = 0
 
             if difficulty == 2:
                 print("Computer is moving - Medium")
@@ -365,68 +442,4 @@ class GameLogic:
                 self.highlight_and_move_computer((from_row, from_col), (to_row, to_col), is_reserved=False,
                                                  game_view=game_view)
             else:
-                if self.turn == 'R' and self.red_reserved > 0:
-
-                    # Choose higher stack controlled by opponent
-                    max_stack_pos = self.get_maxstack_opponent_pos(self.turn)
-
-                    if max_stack_pos:
-                        to_row, to_col = max_stack_pos
-
-                        self.highlight_and_move_computer(None, (to_row, to_col), is_reserved=True, game_view=game_view)
-                        pygame.display.flip()
-                    else:
-                        print("No valid moves available")
-
-                elif self.turn == 'B' and self.blue_reserved > 0:
-
-                    # Choose higher stack controlled by opponent
-                    max_stack_pos = self.get_maxstack_opponent_pos(self.turn)
-
-                    if max_stack_pos:
-                        to_row, to_col = max_stack_pos
-
-                        self.highlight_and_move_computer(None, (to_row, to_col), is_reserved=True, game_view=game_view)
-                        pygame.display.flip()
-                    else:
-                        print("No valid moves available")
-
-    """ Checks if the game is over (i.e, a winner exists).
-        @return: True if the game is over, False otherwise.
-    """
-    def check_gameover(self, mcts=False):
-        return self.check_winner(mcts) is not None  # Game is over if there's a winner
-
-    """ Determines the game result from the perspective of a specific player.
-        @param player: The player ('B' or 'R') to check the result for.
-        @return: 1 for a win, -1 for a loss, 0 for an ongoing game.
-    """
-    def get_result(self, player):
-        winner = self.check_winner(mcts=True)  # Check the winner
-        if winner == player:  # If the winner is the player
-            return 1  # Win
-        elif winner is None:
-            return 0  # Game not done
-        else:
-            return -1  # Loss
-
-    """Determines the position of the opponent's stack with the maximum length. If multiple stacks have the same 
-    length, a random position is chosen. @param player: The player ('B' or 'R') to find the opponent's stack for. 
-    @return: The position (row, col) of the opponent's stack with the maximum length.
-    """
-    def get_maxstack_opponent_pos(self, player):
-        max_stack = 0
-        max_stack_positions = []
-        for i in range(self.board_size):
-            for j in range(self.board_size):
-                stack_length = len(self.board[i][j])
-
-                if self.board[i][j][-1] != player:
-                    if stack_length > max_stack:
-                        max_stack = stack_length
-                        max_stack_positions = [(i, j)]
-                    elif stack_length == max_stack:
-                        max_stack_positions.append((i, j))
-
-        if max_stack_positions:
-            return random.choice(max_stack_positions)
+                self.computer_reserved_play(game_view)  # If no valid moves are available but reserved pieces
