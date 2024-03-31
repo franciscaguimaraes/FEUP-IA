@@ -15,8 +15,13 @@ class MinimaxWithAlphaBeta:
                         score += stack_points
                     else:
                         score -= stack_points
+
+        # Add to score if player has reserved pieces
         score += game_logic.blue_reserved if self.player == 'B' else game_logic.red_reserved
+
+        # Add to score if player has captured opponent's pieces
         score += game_logic.red_captured if self.player == 'B' else game_logic.blue_captured
+
         return score
 
     def evaluate_3(self, game_logic, move):
