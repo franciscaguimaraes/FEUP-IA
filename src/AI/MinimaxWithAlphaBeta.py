@@ -16,6 +16,7 @@ class MinimaxWithAlphaBeta:
                     else:
                         score -= stack_points
         score += game_logic.blue_reserved if self.player == 'B' else game_logic.red_reserved
+        score += game_logic.red_captured if self.player == 'B' else game_logic.blue_captured
         return score
 
     def evaluate_3(self, game_logic, move):

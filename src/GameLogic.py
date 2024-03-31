@@ -17,10 +17,12 @@ class GameLogic:
         self.turn = 'B'  # Blue player as default
         self.player = 'human'  # Human player as default
         self.mode = mode
-        self.blue_reserved = 1
+        self.blue_reserved = 0
         self.red_reserved = 0
         self.blue_pieces = None
         self.red_pieces = None
+        self.blue_captured = 0
+        self.red_captured = 0
 
     """ Initializes the game board based on the predefined size. Sets up the starting positions of the pieces.
     """
@@ -216,9 +218,11 @@ class GameLogic:
         if player == 'B':
             self.blue_reserved += reserve_count
             self.red_pieces -= capture_count
+            self.red_captured += capture_count  # Increment the number of red pieces captured
         else:
             self.red_reserved += reserve_count
             self.blue_pieces -= capture_count
+            self.blue_captured += capture_count  # Increment the number of blue pieces captured
 
     """ Calculates the distance between two positions on the board.
         @param from_pos: The starting position (row, col).
