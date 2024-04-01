@@ -81,8 +81,9 @@ class GameView:
                             pygame.draw.rect(self.screen, self.BLACK,
                                              (x, y - k * piece_height, piece_width, piece_height), 1)  # Draw border
 
-    """Draws the side menu next to the game board. This menu includes game information such as the current player's 
-    turn, the number of pieces in play, and buttons for game actions like playing a reserved piece.
+    """ Draws the side menu next to the game board. This menu includes game information such as the current player's 
+    turn, the number of pieces in play, buttons for game actions like playing a reserved piece and information about the
+    current mode and difficulties.
     """
     def draw_side_menu(self):
         pygame.draw.rect(self.screen, self.WHITE, (self.width, 0, self.menu_width, self.height))
