@@ -60,7 +60,7 @@ class MCTSNode:
         @param exploration_weight: The exploration weight for the UCT formula.
         @return: The selected child node.
     """
-    def select(self, exploration_weight=100):
+    def select(self, exploration_weight=2):
         best_score = float('-inf')
         best_node = None
 
@@ -159,6 +159,6 @@ class MCTS:
             best_children = [child for child in self.root.children if child.wins == most_wins]
             best_child = random.choice(best_children)
 
-            print("Best move: ", best_child.move)
+            # print("Best move: ", best_child.move)
 
             return best_child.move

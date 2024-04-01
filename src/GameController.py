@@ -46,7 +46,7 @@ class GameController:
     def run(self):
         while self.running:
             current_time = time.time()
-            if self.mode in [1, 2] and self.game_logic.player == 'human' and (current_time - self.last_move_time) >= 1:
+            if self.mode in [1, 2] and self.game_logic.player == 'human' and (current_time - self.last_move_time) >= 7:
                 if not self.current_hint:
                     self.select_hint()
                     if not self.hint_displayed:  # Resize if hint not already displayed.
@@ -60,9 +60,7 @@ class GameController:
                     self.hint_displayed = False
                 self.display_hint = False
 
-            pygame.display.flip()
             self.render()
-            pygame.display.flip()
             self.game_logic.count_pieces()
             self.handle_events()
             self.update_game_state()
@@ -111,7 +109,6 @@ class GameController:
             self.placing_reserved = False
             if success:
                 self.game_view.draw_everything(self.valid_moves, self.selected_piece, self.placing_reserved)
-                pygame.display.flip()
                 self.current_hint = None
                 self.last_move_time = time.time()
                 self.hint_displayed = True
@@ -121,7 +118,6 @@ class GameController:
                 return
             self.handle_piece_selection_or_movement(row, col)
             self.game_view.draw_everything(self.valid_moves, self.selected_piece, self.placing_reserved)
-            pygame.display.flip()
 
     """ Handles the placement of a reserved piece onto the board.
         @param row: The row where the piece is to be placed.
@@ -239,8 +235,6 @@ class GameController:
 
             self.game_view.draw_everything(self.valid_moves, self.selected_piece, self.placing_reserved,
                                            hint_to_display)
-
-        pygame.display.flip()
 
     """ Converts mouse position to cell coordinates on the board.
         @param mouse_pos: The position of the mouse click.

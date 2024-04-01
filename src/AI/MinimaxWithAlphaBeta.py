@@ -59,12 +59,12 @@ class MinimaxWithAlphaBeta:
                 eval = self.evaluate_3(game_logic, move)
             else:
                 eval = 0
-            print(f"{' ' * (4 - depth)}Eval: {eval}, Depth: {depth}, Alpha: {alpha}, Beta: {beta}")
+            #print(f"{' ' * (4 - depth)}Eval: {eval}, Depth: {depth}, Alpha: {alpha}, Beta: {beta}")
             return eval
 
         if maximizingPlayer:
             maxEval = float('-inf')
-            print(f"{' ' * (4 - depth)}Maximizing, Depth: {depth}, Alpha: {alpha}, Beta: {beta}")
+            #print(f"{' ' * (4 - depth)}Maximizing, Depth: {depth}, Alpha: {alpha}, Beta: {beta}")
             for move in game_logic.get_valid_moves_for_player(self.player):
                 new_game_state = game_logic.copy()
                 new_game_state.move_stack(move[:2], move[2:])
@@ -72,12 +72,12 @@ class MinimaxWithAlphaBeta:
                 maxEval = max(maxEval, eval)
                 alpha = max(alpha, eval)
                 if beta <= alpha:
-                    print(f"{' ' * (4 - depth)}Alpha cut-off at {alpha}")
+                    #print(f"{' ' * (4 - depth)}Alpha cut-off at {alpha}")
                     break
             return maxEval
         else:
             minEval = float('inf')
-            print(f"{' ' * (4 - depth)}Minimizing, Depth: {depth}, Alpha: {alpha}, Beta: {beta}")
+            #print(f"{' ' * (4 - depth)}Minimizing, Depth: {depth}, Alpha: {alpha}, Beta: {beta}")
             opponent = 'B' if self.player == 'R' else 'R'
             for move in game_logic.get_valid_moves_for_player(opponent):
                 new_game_state = game_logic.copy()
@@ -86,7 +86,7 @@ class MinimaxWithAlphaBeta:
                 minEval = min(minEval, eval)
                 beta = min(beta, eval)
                 if beta <= alpha:
-                    print(f"{' ' * (4 - depth)}Beta cut-off at {beta}")
+                    #print(f"{' ' * (4 - depth)}Beta cut-off at {beta}")
                     break
             return minEval
 
@@ -96,7 +96,7 @@ class MinimaxWithAlphaBeta:
         alpha = float('-inf')
         beta = float('inf')
 
-        print(f"{'=' * 20}\nStarting Minimax Search for Player {self.player}")
+        #print(f"{'=' * 20}\nStarting Minimax Search for Player {self.player}")
         for move in game_logic.get_valid_moves_for_player(self.player):
             new_game_state = game_logic.copy()
             new_game_state.move_stack(move[:2], move[2:])
@@ -111,7 +111,7 @@ class MinimaxWithAlphaBeta:
                     alpha = max(alpha, score)
                 else:
                     beta = min(beta, score)
-            print(f"Considered Move: {move}, Score: {score}, Alpha: {alpha}, Beta: {beta}")
+            # print(f"Considered Move: {move}, Score: {score}, Alpha: {alpha}, Beta: {beta}")
 
-        print(f"Best Move: {best_move}, Best Score: {best_score}")
+        # print(f"Best Move: {best_move}, Best Score: {best_score}")
         return best_move

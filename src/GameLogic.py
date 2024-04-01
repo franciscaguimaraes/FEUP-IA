@@ -1,4 +1,5 @@
 import random
+import time
 
 import pygame
 
@@ -23,6 +24,9 @@ class GameLogic:
         self.red_pieces = None
         self.blue_captured = 0
         self.red_captured = 0
+        self.move = 0
+        self.time = 0
+        self.average_time = 0
 
     """ Initializes the game board based on the predefined size. Sets up the starting positions of the pieces.
     """
@@ -65,10 +69,10 @@ class GameLogic:
 
             self.board = [
                 ['N', 'N', 'X', 'X', 'N', 'N'],
-                ['N', 'B', 'R', 'X', 'X', 'N'],
+                ['N', 'X', 'B', 'X', 'X', 'N'],
                 ['X', 'X', 'X', 'X', 'X', 'X'],
                 ['X', 'X', 'X', 'X', 'X', 'X'],
-                ['N', 'X', 'X', 'X', 'X', 'N'],
+                ['N', 'X', 'BR', 'X', 'X', 'N'],
                 ['N', 'N', 'X', 'X', 'N', 'N']
             ]
 
@@ -410,10 +414,15 @@ class GameLogic:
 
             print("Computer is moving - EASY - MCTS")
 
+            # count how many seconds monte carlo takes to have a decision
+            start_time = time.time()
             mcts_tree = MCTS(self, self.turn, 10)
             selected_move = mcts_tree.search()
+            self.average_time += time.time() - start_time
+            print(f"Time taken: {time.time() - start_time}")
 
             if selected_move:
+                # increment move
                 valid_positions = self.get_valid_moves_for_position(selected_move[0], selected_move[1])
                 game_view.highlight_moves(valid_positions, reserved=False)
                 pygame.display.flip()
@@ -423,6 +432,11 @@ class GameLogic:
                 self.move_stack((selected_move[0], selected_move[1]), (selected_move[2], selected_move[3]))
             else:
                 self.computer_reserved_play(game_view)  # If no valid moves are available but reserved pieces
+
+            self.move += 1
+            print(f"Average time: {self.average_time / self.move}")
+            print(f"Total time: {self.average_time}")
+            print(f"Total moves: {self.move}")
 
         elif difficulty == 2 or difficulty == 3 or difficulty == 4:
 
