@@ -222,9 +222,9 @@ class GameView:
         pygame.display.flip()  # Update the screen with everything drawn
 
     """ Wrap text to fit within a specified width.
-    @param text: The text to wrap.
-    @param font: The font to use for rendering the text.
-    @param max_width: The maximum width of the text.
+        @param text: The text to wrap.
+        @param font: The font to use for rendering the text.
+        @param max_width: The maximum width of the text.
     """
     def wrap_text(self, text, font, max_width):
         words = text.split(' ')
@@ -243,7 +243,7 @@ class GameView:
         return lines
 
     """ Display a hint text at the bottom of the window.
-    @param hint: The hint text to display.
+        @param hint: The hint text to display.
     """
     def display_hint(self, hint):
         if hint:
@@ -259,7 +259,7 @@ class GameView:
                 self.draw_text(line.strip(), self.small_font, self.BLACK, 15, hint_y_position + i * line_height + 5)
 
     """ Resize the window to make space for hint display.
-    @param hint_height: The height of the hint text to display.
+        @param hint_height: The height of the hint text to display.
     """
     def resize_window_for_hint(self, hint_height):
         self.screen = pygame.display.set_mode((self.total_width, self.height + hint_height))

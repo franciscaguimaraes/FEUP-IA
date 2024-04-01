@@ -152,13 +152,7 @@ class MCTS:
         if not self.root.children:  # If there are no children
             return None
         else:
-            # for child in self.root.children:
-            #     print(f"child-move:{child.move}, child.wins:{child.wins}")
-            #     print("____________________________________________")
             most_wins = max(self.root.children, key=lambda child: child.wins).wins
             best_children = [child for child in self.root.children if child.wins == most_wins]
             best_child = random.choice(best_children)
-
-            # print("Best move: ", best_child.move)
-
             return best_child.move

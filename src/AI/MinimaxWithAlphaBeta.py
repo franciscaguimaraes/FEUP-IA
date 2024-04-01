@@ -2,11 +2,22 @@ import random
 
 
 class MinimaxWithAlphaBeta:
+
+    """ Initializes the Minimax object with Alpha-Beta pruning for game decision-making.
+        Parameters:
+        - depth (int): The maximum depth to explore in the game tree. A higher number increases the foresight of the AI.
+        - player (str): The player this AI represents, either 'B' for Blue or 'R' for Red.
+        - game_level (int): The difficulty level of the game (2, 3, or 4).
+    """
     def __init__(self, depth, player, game_level):
         self.depth = depth
         self.player = player  # 'B' ou 'R'
-        self.game_level = game_level # 2 or 3 or 4
+        self.game_level = game_level  # 2 or 3 or 4
 
+    """ Evaluates the game board for the 'hard' difficulty setting by calculating the score based on controlled stacks, reserved and captured pieces.
+        @param game_logic (object): The current state of the game logic.
+        @return score The calculated score from the current player's perspective.
+    """
     def evaluate_hard(self, game_logic):
         score = 0
         for row in game_logic.board:
@@ -27,6 +38,10 @@ class MinimaxWithAlphaBeta:
 
         return score
 
+    """ Evaluates the game board for the 'medium' difficulty setting, emphasizing control of the central region of the board.
+        @param game_logic: The current state of the game logic.
+        @return score: The calculated score focusing on board control.
+    """
     def evaluate_medium(self, game_logic):
         score = 0
         center_areas = []
@@ -45,6 +60,15 @@ class MinimaxWithAlphaBeta:
 
         return score
 
+    """ Recursively performs the Minimax algorithm with Alpha-Beta pruning to find the best score achievable from the 
+    current state, considering both maximizing and minimizing scenarios.
+        @param game_logic (object): The game logic containing the current state.
+        @param depth (int): Current depth in the search tree.
+        @param alpha (int): The current alpha value for Alpha-Beta pruning.
+        @param beta (int): The current beta value for Alpha-Beta pruning.
+        @param maximizingPlayer (bool): True if the current player is maximizing the score, False otherwise.
+        @return maxEval or minEval: The best score found for the current branch of the game tree.
+    """
     def minimax(self, game_logic, depth, alpha, beta, maximizingPlayer):
         if depth == 0 or game_logic.check_gameover():
             if self.game_level == 3 or self.game_level == 4:
@@ -79,6 +103,10 @@ class MinimaxWithAlphaBeta:
                     break
             return minEval
 
+    """ Determines the best move to make from the current game state by applying the Minimax algorithm with Alpha-Beta pruning across all valid moves.
+        @param game_logic: The game logic containing the current state.
+        @return selected_move: The best move found (or None if no valid moves).
+    """
     def find_best_move(self, game_logic):
         best_moves = []
         best_score = float('-inf') if self.player == game_logic.turn else float('inf')
