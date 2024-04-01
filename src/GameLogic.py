@@ -384,7 +384,7 @@ class GameLogic:
             elif difficulty == 3:
                 depth = 2
             elif difficulty == 4:
-                depth = 3
+                depth = 5
 
             minimax_algorithm = MinimaxWithAlphaBeta(depth, player=self.turn, game_level=difficulty)
             best_move = minimax_algorithm.find_best_move(self)
