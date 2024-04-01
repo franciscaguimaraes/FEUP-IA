@@ -4,19 +4,19 @@ import random
 class MinimaxWithAlphaBeta:
 
     """ Initializes the Minimax object with Alpha-Beta pruning for game decision-making.
-        Parameters:
-        - depth (int): The maximum depth to explore in the game tree. A higher number increases the foresight of the AI.
-        - player (str): The player this AI represents, either 'B' for Blue or 'R' for Red.
-        - game_level (int): The difficulty level of the game (2, 3, or 4).
+        @param depth: The maximum depth to explore in the game tree. A higher number increases the foresight of the AI.
+        @param player: The player this AI represents, either 'B' for Blue or 'R' for Red.
+        @game_level: The difficulty level of the game (2, 3, or 4).
     """
     def __init__(self, depth, player, game_level):
         self.depth = depth
         self.player = player  # 'B' ou 'R'
         self.game_level = game_level  # 2 or 3 or 4
 
-    """ Evaluates the game board for the 'hard' difficulty setting by calculating the score based on controlled stacks, reserved and captured pieces.
-        @param game_logic (object): The current state of the game logic.
-        @return score The calculated score from the current player's perspective.
+    """ Evaluates the game board for the 'hard' difficulty setting by calculating the score based on controlled stacks, 
+        reserved and captured pieces.
+        @param game_logic: The current state of the game logic.
+        @return score: The calculated score from the current player's perspective.
     """
     def evaluate_hard(self, game_logic):
         score = 0
@@ -38,7 +38,8 @@ class MinimaxWithAlphaBeta:
 
         return score
 
-    """ Evaluates the game board for the 'medium' difficulty setting, emphasizing control of the central region of the board.
+    """ Evaluates the game board for the 'medium' difficulty setting, emphasizing control of the central region of the 
+        board.
         @param game_logic: The current state of the game logic.
         @return score: The calculated score focusing on board control.
     """
@@ -103,7 +104,8 @@ class MinimaxWithAlphaBeta:
                     break
             return minEval
 
-    """ Determines the best move to make from the current game state by applying the Minimax algorithm with Alpha-Beta pruning across all valid moves.
+    """ Determines the best move to make from the current game state by applying the Minimax algorithm with Alpha-Beta
+        pruning across all valid moves.
         @param game_logic: The game logic containing the current state.
         @return selected_move: The best move found (or None if no valid moves).
     """
