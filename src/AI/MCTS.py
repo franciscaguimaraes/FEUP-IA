@@ -54,7 +54,7 @@ class MCTSNode:
         @param exploration_weight: The exploration weight for the UCT formula.
         @return: The selected child node.
     """
-    def select(self, exploration_weight=2):
+    def select(self, exploration_weight=1.4):
         best_score = float('-inf')
         best_node = None
 
