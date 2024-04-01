@@ -58,23 +58,16 @@ class GameLogic:
         elif self.board_size == 6:
 
             # 6X6 board
-            # self.board = [
-            #     ['N', 'N', 'X', 'X', 'N', 'N'],
-            #     ['N', 'R', 'R', 'B', 'B', 'N'],
-            #     ['X', 'B', 'B', 'R', 'R', 'X'],
-            #     ['X', 'R', 'R', 'B', 'B', 'X'],
-            #     ['N', 'B', 'B', 'R', 'R', 'N'],
-            #     ['N', 'N', 'X', 'X', 'N', 'N']
-            # ]
-
-            self.board = [
-                ['N', 'N', 'X', 'X', 'N', 'N'],
-                ['N', 'X', 'B', 'X', 'X', 'N'],
-                ['X', 'X', 'X', 'X', 'X', 'X'],
-                ['X', 'X', 'X', 'X', 'X', 'X'],
-                ['N', 'X', 'BR', 'X', 'X', 'N'],
-                ['N', 'N', 'X', 'X', 'N', 'N']
+             self.board = [
+                 ['N', 'N', 'X', 'X', 'N', 'N'],
+                 ['N', 'R', 'R', 'B', 'B', 'N'],
+                 ['X', 'B', 'B', 'R', 'R', 'X'],
+                 ['X', 'R', 'R', 'B', 'B', 'X'],
+                 ['N', 'B', 'B', 'R', 'R', 'N'],
+                 ['N', 'N', 'X', 'X', 'N', 'N']
             ]
+
+
 
         self.count_pieces()
 
