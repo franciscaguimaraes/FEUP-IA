@@ -15,7 +15,8 @@ class BoardSizeMenu(BaseMenu):
         self.button_clicked = None
         self.board_chosen = 0
 
-    """ Runs the board size menu, displaying the menu options and handling user interactions. """
+    """ Runs the board size menu, displaying the menu options and handling user interactions. 
+    """
     def run(self):
         running = True
         while running:
@@ -51,7 +52,6 @@ class BoardSizeMenu(BaseMenu):
                 pygame.draw.rect(self.screen, self.orange, self.button_clicked, 5, border_radius=91)
                 pygame.display.flip()
 
-                # wait half a second before moving to the next menu
                 pygame.time.wait(200)
 
                 players_menu = PlayersMenu(self.screen, self.screen_width, self.screen_height, self.board_chosen)

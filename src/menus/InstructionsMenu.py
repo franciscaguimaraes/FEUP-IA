@@ -12,8 +12,9 @@ class InstructionsMenu(BaseMenu):
     def __init__(self, screen, screen_width, screen_height):
         super().__init__(screen, screen_width, screen_height, './imgs/instructions.png')
 
-    """Runs the instructions menu. Displays the instructions and waits for the user to press the 'Back' button 
-    to return to the previous menu."""
+    """ Runs the instructions menu. Displays the instructions and waits for the user to press the 'Back' button 
+    to return to the previous menu.
+    """
     def run(self):
         running = True
         while running:

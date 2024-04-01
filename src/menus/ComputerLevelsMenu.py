@@ -8,6 +8,7 @@ class ComputerLevelsMenu(BaseMenu):
         @param screen_width: The width of the screen in pixels.
         @param screen_height: The height of the screen in pixels.
         @param mode: The game mode that determines the type of match (Player vs Computer, Computer vs Computer).
+        @param board_size: The size of the game board, determining the number of rows and columns.
     """
     def __init__(self, screen, screen_width, screen_height, mode, board_size):
         super().__init__(screen, screen_width, screen_height, './imgs/computerLevels.png')

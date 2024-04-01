@@ -8,8 +8,8 @@ class PieceColorMenu(BaseMenu):
         @param screen: The main game screen or surface where the menu will be drawn.
         @param screen_width: The width of the screen in pixels.
         @param screen_height: The height of the screen in pixels.
+        @param board_size: The size of the game board, which is used to start a new game with the selected piece color.
     """
-
     def __init__(self, screen, screen_width, screen_height, board_size):
         super().__init__(screen, screen_width, screen_height, './imgs/selectColorMenu.png')
         self.red = (255, 0, 0)
@@ -20,7 +20,6 @@ class PieceColorMenu(BaseMenu):
 
     """ Runs the piece color selection menu, displaying the menu options and handling user interactions.
     """
-
     def run(self):
         running = True
         while running:
@@ -64,11 +63,10 @@ class PieceColorMenu(BaseMenu):
             self.update_display()
 
     """ Starts a new game with the selected piece color.
-           @param mode: The game mode, which is currently hardcoded to 1, implying a specific game mode.
-           @param difficulty: Currently unused, placeholder for future game difficulty settings.
-           @param turn: Indicates who starts the game, either 'B' for Blue or 'R' for Red.
-       """
-
+        @param mode: The game mode, which is currently hardcoded to 1, implying a specific game mode.
+        @param difficulty: Currently unused, placeholder for future game difficulty settings.
+        @param turn: Indicates who starts the game, either 'B' for Blue or 'R' for Red.
+    """
     def start_game(self, mode, difficulty, turn):
         pygame.time.wait(300)
         game = GameController.GameController(600, 600, self.board_size, mode, difficulty, None, turn)

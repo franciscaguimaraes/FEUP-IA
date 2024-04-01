@@ -11,6 +11,7 @@ class LevelsMenu(BaseMenu):
         @param screen_height: The height of the screen in pixels.
         @param mode: The game mode, determining how the game logic and interactions are handled.
         @param turn: Indicates who starts the game, the player or the computer.
+        @param board_size: The size of the game board, determining the number of rows and columns.
     """
     def __init__(self, screen, screen_width, screen_height, mode, turn, board_size):
         super().__init__(screen, screen_width, screen_height, './imgs/difficultyLevels.png')
@@ -22,8 +23,8 @@ class LevelsMenu(BaseMenu):
         self.difficulty = 0
 
     """ Runs the levels menu, allowing the user to select a difficulty level for the game.
-            Handles user input to select levels and start the game or go back to the previous menu.
-        """
+        Handles user input to select levels and start the game or go back to the previous menu.
+    """
     def run(self):
         running = True
         while running:
@@ -68,10 +69,10 @@ class LevelsMenu(BaseMenu):
             self.update_display()
 
     """ Starts a new game with the selected difficulty level.
-            @param mode: The game mode, determining how the game logic and interactions are handled.
-            @param difficulty: The difficulty level selected for the computer opponent.
-            @param turn: Indicates who starts the game, the player or the computer.
-        """
+        @param mode: The game mode, determining how the game logic and interactions are handled.
+        @param difficulty: The difficulty level selected for the computer opponent.
+        @param turn: Indicates who starts the game, the player or the computer.
+    """
     def start_game(self, mode, difficulty, turn):
         pygame.time.wait(500)
         game = GameController.GameController(600, 600, self.board_size, mode, difficulty, None, turn)

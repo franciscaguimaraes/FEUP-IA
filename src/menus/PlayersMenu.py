@@ -12,14 +12,13 @@ class PlayersMenu(BaseMenu):
         @param screen_height: The height of the screen in pixels.
         @param board_size: The size of the game board, determining the number of rows and columns.
     """
-
     def __init__(self, screen, screen_width, screen_height, board_size):
         super().__init__(screen, screen_width, screen_height, './imgs/playersMenu.png')
         self.board_size = board_size
         self.button_clicked = None
 
-    """ Runs the player menu, allowing the user to select the type of match to play."""
-
+    """ Runs the player menu, allowing the user to select the type of match to play.
+    """
     def run(self):
         running = True
         while running:

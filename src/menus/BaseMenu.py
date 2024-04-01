@@ -1,4 +1,3 @@
-# Inside MenuBase.py
 import pygame
 import sys
 

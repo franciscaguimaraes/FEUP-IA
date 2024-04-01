@@ -9,8 +9,8 @@ class PlayerComputerPieceChoice(BaseMenu):
         @param screen: The main game screen or surface where the menu will be drawn.
         @param screen_width: The width of the screen in pixels.
         @param screen_height: The height of the screen in pixels.
+        @param board_size: The size of the game board, which is used to start a new game with the selected piece color.
     """
-
     def __init__(self, screen, screen_width, screen_height, board_size):
         super().__init__(screen, screen_width, screen_height, './imgs/selectColorMenu.png')
         self.board_size = board_size
@@ -21,7 +21,6 @@ class PlayerComputerPieceChoice(BaseMenu):
 
     """ Runs the piece color choice menu, displaying the menu options and handling user interactions.
     """
-
     def run(self):
         running = True
         while running:
