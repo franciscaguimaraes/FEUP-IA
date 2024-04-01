@@ -1,6 +1,6 @@
 import pygame
 from .BaseMenu import BaseMenu
-from src import GameController
+import GameController
 
 
 class LevelsMenu(BaseMenu):

@@ -1,10 +1,8 @@
 import random
-import time
-
 import pygame
 
-from src.AI.MCTS import MCTS
-from src.AI.MinimaxWithAlphaBeta import MinimaxWithAlphaBeta
+from AI.MCTS import MCTS
+from AI.MinimaxWithAlphaBeta import MinimaxWithAlphaBeta
 
 
 class GameLogic:

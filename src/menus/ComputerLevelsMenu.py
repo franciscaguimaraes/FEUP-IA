@@ -1,6 +1,6 @@
 import pygame
 from .BaseMenu import BaseMenu
-from src import GameController
+import GameController
 
 class ComputerLevelsMenu(BaseMenu):
     """ Initializes the computer levels menu with UI elements for selecting difficulty levels.
