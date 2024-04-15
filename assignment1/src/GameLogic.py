@@ -17,7 +17,7 @@ class GameLogic:
         self.turn = 'B'  # Blue player as default
         self.player = 'human'  # Human player as default
         self.mode = mode
-        self.blue_reserved = 0
+        self.blue_reserved = 1
         self.red_reserved = 0
         self.blue_pieces = None
         self.red_pieces = None
@@ -41,8 +41,9 @@ class GameLogic:
                 ['N', 'N', 'X', 'X', 'X', 'X', 'N', 'N']
             ]
 
+
         elif self.board_size == 6:
-            # 6X6 board
+
             self.board = [
                 ['N', 'N', 'X', 'X', 'N', 'N'],
                 ['N', 'R', 'R', 'B', 'B', 'N'],
@@ -51,6 +52,7 @@ class GameLogic:
                 ['N', 'B', 'B', 'R', 'R', 'N'],
                 ['N', 'N', 'X', 'X', 'N', 'N']
             ]
+
 
         self.count_pieces()
 
