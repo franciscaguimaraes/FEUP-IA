@@ -1,4 +1,4 @@
-# Breat Cancer - IA 2024
+# Breast Cancer - IA 2024
 
 This project consists in the application of machine learning models and algorithms related to supervised learning.  
 
